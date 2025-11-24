@@ -1,7 +1,8 @@
 const AppError = require("../errors/AppError");
 const { logWarning } = require("../logger/logger");
+const { logDebug } = require("../logger/logger");
 
-const isDebug = process.env.Debug === "true";
+const isDebug = process.env.DEBUG === "true";
 const isDev = process.env.NODE_ENV === 'development'
 
 
@@ -44,7 +45,13 @@ function ServiceUnavailable(message = "Service Unavailable") {
 }
 
 
-const mapErrorNameToPreset = (err) => {
+const mapErrorNameToPreset = (err, req) => {
+
+    if (!err || typeof err !== 'object') {
+        logWarning(`Non-object error received in mapErrorNameToPreset: ${JSON.stringify(err)}`, req);
+        return InternalServerError(isDev ? `Non-object error received: ${JSON.stringify(err)}` : "An unexpected error occurred.");
+    }
+
     const { name, code, message } = err;
 
     if (code && String(code).startsWith("11")) {
@@ -56,7 +63,7 @@ const mapErrorNameToPreset = (err) => {
         return presetError(message)
     }
     if (isDev || isDebug) {
-        logWarning(`Unknown error mapping: | name: ${name}, | code: ${code}, | message: ${message}, | stack: ${err.stack}`);
+        logDebug(`Unknown error mapping: | name: ${name}, | code: ${code}, | message: ${message}, | stack: ${err.stack}`);
     }
     
     return InternalServerError(isDev ? message : "An unexpected error occurred.");
