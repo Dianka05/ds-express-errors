@@ -8,7 +8,7 @@ function errorHandler(err, req, res, next) {
     if (err instanceof AppError) {
         defaultErrorAnswer(err, req, res)
     } else {
-        const genericError = mapErrorNameToPreset(err);
+        const genericError = mapErrorNameToPreset(err, req);
         defaultErrorAnswer(genericError, req, res)
     }
 }

@@ -7,9 +7,10 @@ function logError(error, req) {
         const message = error.message || 'Unknown error'
         const statusCode = error.statusCode || 'N/A'
         const stack = isDev ? error.stack : undefined
-        console.error(`[${timestamp}] ${req?.method || ''} ${req?.originalUrl || ''} \nError: ${error.name} \nMessage: ${message} \nStatusCode: ${statusCode} \nStack: ${stack} \nOperational: ${isOperational}\n`)
-    }
+        const code = error.code || 'N/A'
 
+        console.error(`[${timestamp}] ${req?.method || ''} ${req?.originalUrl || ''} \nError: [${code}] ${error.name} \nMessage: ${message} \nStatusCode: ${statusCode} \n${stack ? `Stack: ${stack}` : ''} \nOperational: ${isOperational}\n`)
+    }
 }
 
 function logInfo(message) {
@@ -19,7 +20,7 @@ function logInfo(message) {
 
 function logWarning(message, req) {
     const timestamp = getTimestamp()
-    console.warn(`[${timestamp}] - ${req?.method} ${req?.originalUrl} \nWARNING: ${message}`)
+    console.warn(`[${timestamp}] - ${req?.method || ''} ${req?.originalUrl || ''} \nWARNING: ${message}`)
 }
 
 function logDebug(message) {
