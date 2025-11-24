@@ -6,37 +6,22 @@ const isDev = process.env.NODE_ENV === 'development'
 
 function errorHandler(err, req, res, next) {
     if (err instanceof AppError) {
-        if (err.isOperational) { // expected error
-            logError(err, req);
-            res.status(err.statusCode).json({
-                status: 'error',
-                method: req.method,
-                url: req.originalUrl,
-                message: err.message,
-                ...(isDev ? { stack: err.stack } : {})
-            })
-        } else { // unexpected error
-            logError(err, req)
-            res.status(err.statusCode).json({
-                status: 'error',
-                method: req.method,
-                url: req.originalUrl,
-                message: err.message,
-                ...(isDev ? { stack: err.stack } : {})
-            })
-        }
+        defaultErrorAnswer(err, req, res)
     } else {
         const genericError = mapErrorNameToPreset(err);
-
-        logError(genericError, req)
-        res.status(genericError.statusCode).json({
-            status: 'error',
-            method: req.method,
-            url: req.originalUrl,
-            message: genericError.message,
-            ...(isDev ? { stack: genericError.stack } : {}) 
-        })
+        defaultErrorAnswer(genericError, req, res)
     }
+}
+
+function defaultErrorAnswer(err, req, res) {
+    logError(err, req);
+    res.status(err.statusCode).json({
+        status: err.isOperational ? 'fail' : 'error',
+        method: req.method,
+        url: req.originalUrl,
+        message: err.message,
+        ...(isDev ? { stack: err.stack } : {})
+    })
 }
 
 process.on('unhandledRejection', (reason) => {
