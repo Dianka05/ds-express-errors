@@ -3,9 +3,9 @@
   "version": "1.0.1",
   "description": "Library for typed error handling for Express",
   "main": "index.js",
-  "types": "index.d.ts",  
+  "types": "index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",
@@ -35,5 +35,8 @@
     "index.d.ts",
     "LICENSE",
     "README.md"
-  ]
+  ],
+  "devDependencies": {
+    "jest": "^30.2.0"
+  }
 }
