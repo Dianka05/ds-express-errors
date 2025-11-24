@@ -1,32 +1,53 @@
 const AppError = require('../errors/AppError')
-const { logError, logInfo, logWarning } = require('../logger/logger')
+const { logError } = require('../logger/logger')
+
+const isDev = process.env.NODE_ENV === 'development'
 
 function errorHandler(err, req, res, next) {
     if (err instanceof AppError) {
-
         if (err.isOperational) { // expected error
-            logWarning(err.message);
-            res.status(err.statusCode).json({
-                status: 'warning',
-                message: err.message,
-            })
-        } else { // unexpected error
-            logError(err)
+            logError(err, req);
             res.status(err.statusCode).json({
                 status: 'error',
+                method: req.method,
+                url: req.originalUrl,
                 message: err.message,
-                stack: err.stack
+                ...(isDev ? { stack: err.stack } : {})
+            })
+        } else { // unexpected error
+            logError(err, req)
+            res.status(err.statusCode).json({
+                status: 'error',
+                method: req.method,
+                url: req.originalUrl,
+                message: err.message,
+                ...(isDev ? { stack: err.stack } : {})
             })
         }
     } else {
-        const genericError = new AppError(err.message, err?.statusCode || 500, false)
-        logError(genericError)
+        const genericError = mapErrorNameToPreset(err.name, err.message);
+
+        logError(genericError, req)
         res.status(genericError.statusCode).json({
             status: 'error',
+            method: req.method,
+            url: req.originalUrl,
             message: genericError.message,
-            // stack: genericError.stack
+            ...(isDev ? { stack: genericError.stack } : {}) 
         })
     }
 }
+
+process.on('unhandledRejection', (reason) => {
+    const errorMessage = reason instanceof Error ? reason.message : JSON.stringify(reason);
+    logError(new AppError(`Unhandled Rejection: ${errorMessage}`, 500, false));
+    process.exit(1);
+})
+
+process.on('uncaughtException', (error) => {
+    const msg = error instanceof Error ? error.message : JSON.stringify(error);
+    logError(new AppError(`Uncaught Exception: ${msg}`, 500, false));
+    process.exit(1);
+})
 
 module.exports = {errorHandler}
