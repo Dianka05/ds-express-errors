@@ -1,5 +1,3 @@
-// 1. ВАЖНО: Устанавливаем окружение ДО импортов, 
-// чтобы константы const isDev = ... внутри файлов инициализировались как true.
 process.env.NODE_ENV = 'development';
 
 const { errorHandler } = require('../src/middleware/errorHandler');
@@ -7,7 +5,6 @@ const { asyncHandler } = require('../src/middleware/asyncHandler');
 const { Errors } = require('../index'); 
 const AppError = require('../src/errors/AppError');
 
-// Мокируем консоль
 global.console.error = jest.fn();
 global.console.warn = jest.fn();
 global.console.log = jest.fn();
@@ -73,21 +70,19 @@ describe('DS Express Errors Library', () => {
                 json: jest.fn()
             };
             next = jest.fn();
-            // process.env.NODE_ENV здесь менять уже поздно для require,
-            // но мы сделали это в начале файла.
         });
 
         test('should handle AppError correctly', () => {
-            // Явно передаем true для isOperational, чтобы быть уверенными
+            
             const error = new AppError('Custom Error', 400, true);
             
             errorHandler(error, req, res, next);
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                status: 'error', // 4xx ошибки обычно fail
+                status: 'error',
                 message: 'Custom Error',
-                stack: expect.any(String) // Теперь должно работать, т.к. NODE_ENV=development
+                stack: expect.any(String)
             }));
         });
 
@@ -99,7 +94,7 @@ describe('DS Express Errors Library', () => {
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
                 status: 'fail',
-                message: 'Random Crash' // Теперь сработает, т.к. isDev=true не скрывает текст
+                message: 'Random Crash'
             }));
         });
 
