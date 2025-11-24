@@ -1,4 +1,10 @@
 const AppError = require("../errors/AppError");
+const { logWarning } = require("../logger/logger");
+
+const isDebug = process.env.Debug === "true";
+const isDev = process.env.NODE_ENV === 'development'
+
+
 
 function BadRequest(message = "Bad Request") {
     return new AppError(message, 400, true);
@@ -38,21 +44,39 @@ function ServiceUnavailable(message = "Service Unavailable") {
 }
 
 
-const mapErrorNameToPreset = (name, message) => {
+const mapErrorNameToPreset = (err) => {
+    const { name, code, message } = err;
+
+    if (code && String(code).startsWith("11")) {
+        return BadRequest(`Duplicate field value entered: ${JSON.stringify(err.keyValue)}`)
+    } 
     const presetError = presetErrors[name]
+
     if (presetError) {
         return presetError(message)
-    } else {
-        return InternalServerError(message)
     }
+    if (isDev || isDebug) {
+        logWarning(`Unknown error mapping: | name: ${name}, | code: ${code}, | message: ${message}, | stack: ${err.stack}`);
+    }
+    
+    return InternalServerError(isDev ? message : "An unexpected error occurred.");
 }
 
 const presetErrors = {
     'BadRequest': BadRequest,
     'ValidationError': BadRequest,
     'SyntaxError': BadRequest,
+    'ReferenceError': InternalServerError,
+    'TypeError': InternalServerError,
+    'RangeError': InternalServerError,
+    'UnauthorizedError': Unauthorized,
+    'ForbiddenError': Forbidden,
     'CastError': BadRequest,
     'DuplicateKeyError': BadRequest,
+    'SequelizeUniqueConstraintError': BadRequest,
+    'SequelizeValidationError': BadRequest,
+    'PrismaClientKnownRequestError': BadRequest,
+    'PrismaClientUnknownRequestError': BadRequest,
     'Unauthorized': Unauthorized,
     'PaymentRequired': PaymentRequired,
     'Forbidden': Forbidden,

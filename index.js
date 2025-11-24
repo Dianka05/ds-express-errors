@@ -1,14 +1,19 @@
 const AppError = require("./src/errors/AppError");
 const { logError, logInfo, logWarning } = require("./src/logger/logger");
 const { errorHandler } = require("./src/middleware/errorHandler");
-const { NotFound, Unauthorized, BadRequest, InternalServerError, Forbidden } = require("./src/presets/presets");
+const { NotFound, Unauthorized, BadRequest, InternalServerError, Forbidden, PaymentRequired, NotImplemented, BadGateway, ServiceUnavailable, mapErrorNameToPreset } = require("./src/presets/presets");
 
 const Errors = {
-    NotFound,
-    Unauthorized,
     BadRequest,
+    Unauthorized,
+    PaymentRequired,
     Forbidden,
+    NotFound,
     InternalServerError,
+    NotImplemented,
+    BadGateway,
+    ServiceUnavailable,
+    mapErrorNameToPreset
 }
 
 module.exports = {
