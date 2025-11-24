@@ -1,5 +1,6 @@
 const AppError = require('../errors/AppError')
 const { logError } = require('../logger/logger')
+const { mapErrorNameToPreset } = require('../presets/presets')
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -25,7 +26,7 @@ function errorHandler(err, req, res, next) {
             })
         }
     } else {
-        const genericError = mapErrorNameToPreset(err.name, err.message);
+        const genericError = mapErrorNameToPreset(err);
 
         logError(genericError, req)
         res.status(genericError.statusCode).json({
