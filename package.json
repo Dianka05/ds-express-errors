@@ -1,12 +1,39 @@
 {
   "name": "ds-express-errors",
   "version": "1.0.0",
+  "description": "Library for typed error handling for Express",
   "main": "index.js",
+  "types": "index.d.ts",  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dianka05/ds-express-errors.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dianka05/ds-express-errors/issues"
+  },
+  "homepage": "https://github.com/dianka05/ds-express-errors#readme",
+  "keywords": [
+    "express",
+    "errors",
+    "error-handling",
+    "middleware",
+    "async",
+    "typescript",
+    "logger"
+  ],
+  "author": "Diana Stoyka",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "src",
+    "index.js",
+    "index.d.ts",
+    "LICENSE",
+    "README.md"
+  ]
 }
