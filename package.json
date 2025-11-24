@@ -1,6 +1,6 @@
 {
   "name": "ds-express-errors",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Library for typed error handling for Express",
   "main": "index.js",
   "types": "index.d.ts",  
