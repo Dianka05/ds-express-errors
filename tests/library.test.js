@@ -112,5 +112,55 @@ describe('DS Express Errors Library', () => {
                 message: expect.stringContaining('Duplicate field value')
             }));
         });
+
+
+        test('should handle Zod validation error', () => {
+            const zodError = {
+                name: 'ZodError',
+                issues: [
+                    {
+                        path: ['user', 'email'],
+                        message: 'Invalid email address'
+                    },
+                    {
+                        path: ['age'],
+                        message: 'Too small'
+                    }
+                ]
+            }
+            
+            errorHandler(zodError, req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    status: 'fail',
+                    message: expect.stringContaining('Validation error: user.email : Invalid email address; age : Too small')
+                })
+            )
+            
+        });
+
+        test('should handle Joi validation error', () => {
+            const joiError = {
+                isJoi: true,
+                name: 'ValidationError',
+                details: [
+                    {
+                        message: '"password" is required',
+                        path: ['password']
+                    }
+                ]
+            };
+            
+            errorHandler(joiError, req, res, next);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                status: 'fail',
+                message: expect.stringContaining('password is required')
+            }));
+        });
+
     });
 });
