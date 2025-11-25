@@ -16,7 +16,7 @@ function errorHandler(err, req, res, next) {
 function defaultErrorAnswer(err, req, res) {
     logError(err, req);
     res.status(err.statusCode).json({
-        status: err.isOperational ? 'error' : 'fail',
+        status: err.isOperational ? 'fail' : 'error',
         method: req.method,
         url: req.originalUrl,
         message: err.message,
