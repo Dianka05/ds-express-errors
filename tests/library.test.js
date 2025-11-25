@@ -80,7 +80,7 @@ describe('DS Express Errors Library', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                status: 'error',
+                status: 'fail',
                 message: 'Custom Error',
                 stack: expect.any(String)
             }));
@@ -93,7 +93,7 @@ describe('DS Express Errors Library', () => {
 
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                status: 'fail',
+                status: 'error',
                 message: 'Random Crash'
             }));
         });
