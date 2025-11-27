@@ -134,6 +134,7 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 
 **Supported mappings:**
 
+- **Validation Libraries:** `ZodError` (Zod), `ValidationError` (Joi) — automatically formatted into readable messages.
 - **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`  
 - **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`  
 - **Sequelize:** `SequelizeUniqueConstraintError`, `SequelizeValidationError`  

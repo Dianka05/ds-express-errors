@@ -53,24 +53,24 @@ const mapErrorNameToPreset = (err, req) => {
     const { name, code, message } = err
 
     if (name === 'ZodError' && Array.isArray(err.issues)) {
-        const formatedMessages = err.issues.map(issue => {
+        const formattedMessages = err.issues.map(issue => {
             const path = issue.path.join('.')
             return `${path ? path + ': '  : ''}${issue.message}`
         }).join('; ')
 
-        isDebug && logDebug(`Zod validation error issues: ${formatedMessages}`, req)
+        isDebug && logDebug(`Zod validation error issues: ${formattedMessages}`, req)
 
-        return BadRequest(`Validation error: ${formatedMessages}`)
+        return BadRequest(`Validation error: ${formattedMessages}`)
     }
 
     if (err.isJoi === true && Array.isArray(err.details)) {
-        const formatedMessage = err.details
+        const formattedMessage = err.details
             .map(detail => detail.message.replace(/"/g, ''))
             .join('; ')
             
-        isDebug && logDebug(`Joi validation error details: ${formatedMessage}`, req)
+        isDebug && logDebug(`Joi validation error details: ${formattedMessage}`, req)
 
-        return BadRequest(`Validation Error: ${formatedMessage}`);
+        return BadRequest(`Validation Error: ${formattedMessage}`);
     }
 
     if (code && String(code).startsWith("11")) {
