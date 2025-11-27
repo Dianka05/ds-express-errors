@@ -7,25 +7,26 @@ function logError(error, req) {
         const message = error.message || 'Unknown error'
         const statusCode = error.statusCode || 'N/A'
         const stack = isDev ? error.stack : undefined
-        const code = error.code || 'N/A'
+        const code = error.code ? `[${error.code}]` : ''
+        const name = error.name || ''
 
-        console.error(`[${timestamp}] ${req?.method || ''} ${req?.originalUrl || ''} \nError: [${code}] ${error.name} \nMessage: ${message} \nStatusCode: ${statusCode} \n${stack ? `Stack: ${stack}` : ''} \nOperational: ${isOperational}\n`)
+        console.error(`[${timestamp}] ${req?.method || ''} ${req?.originalUrl || ''} \n[Error]: ${code} ${name} \nMessage: ${message} \nStatusCode: ${statusCode} \n${stack ? `Stack: ${stack}` : ''} \nOperational: ${isOperational}\n`)
     }
 }
 
 function logInfo(message) {
     const timestamp = getTimestamp()
-    console.log(`[${timestamp}] - INFO: ${message}`)
+    console.log(`[${timestamp}] - [INFO]: ${message}`)
 }
 
 function logWarning(message, req) {
     const timestamp = getTimestamp()
-    console.warn(`[${timestamp}] - ${req?.method || ''} ${req?.originalUrl || ''} \nWARNING: ${message}`)
+    console.warn(`[${timestamp}] - ${req?.method || ''} ${req?.originalUrl || ''} \n[WARNING]: ${message}`)
 }
 
-function logDebug(message) {
+function logDebug(message, req) {
     const timestamp = getTimestamp()
-    console.debug(`[${timestamp}] - DEBUG: ${message}`)
+    console.debug(`[${timestamp}] - [DEBUG]: ${req?.method || ''} ${req?.originalUrl || ''} [Message]: ${message}`)
 }
 
 const getTimestamp = () => {
