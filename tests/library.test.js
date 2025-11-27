@@ -135,7 +135,7 @@ describe('DS Express Errors Library', () => {
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({
                     status: 'fail',
-                    message: expect.stringContaining('Validation error: user.email : Invalid email address; age : Too small')
+                    message: expect.stringContaining('Validation error: user.email: Invalid email address; age: Too small')
                 })
             )
             
