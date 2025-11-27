@@ -1,3 +1,4 @@
+const { default: HttpStatus } = require("../constants/httpStatus")
 const AppError = require("../errors/AppError")
 const { logDebug, logWarning } = require("../logger/logger")
 
@@ -7,39 +8,39 @@ const isDev = process.env.NODE_ENV === 'development'
 
 
 function BadRequest(message = "Bad Request") {
-    return new AppError(message, 400, true)
+    return new AppError(message, HttpStatus.BAD_REQUEST, true)
 }
 
 function Unauthorized(message = "Unauthorized") {
-    return new AppError(message, 401, true)
+    return new AppError(message, HttpStatus.UNAUTHORIZED, true)
 }
 
 function PaymentRequired(message = "Payment Required") {
-    return new AppError(message, 402, true)
+    return new AppError(message, HttpStatus.PAYMENT_REQUIRED, true)
 }
 
 function Forbidden(message = "Forbidden") {
-    return new AppError(message, 403, true)
+    return new AppError(message, HttpStatus.FORBIDDEN, true)
 }
 
 function NotFound(message = "Not Found") {
-    return new AppError(message, 404, true)
+    return new AppError(message, HttpStatus.NOT_FOUND, true)
 }
 
 function InternalServerError(message = "Internal Server Error", isOperational = false) {
-    return new AppError(message, 500, isOperational)
+    return new AppError(message, HttpStatus.INTERNAL_SERVER_ERROR, isOperational)
 }
 
 function NotImplemented(message = "Not Implemented") {
-    return new AppError(message, 501, true)
+    return new AppError(message, HttpStatus.NOT_IMPLEMENTED, true)
 }
 
 function BadGateway(message = "Bad Gateway") {
-    return new AppError(message, 502, true)
+    return new AppError(message, HttpStatus.BAD_GATEWAY, true)
 }
 
 function ServiceUnavailable(message = "Service Unavailable") {
-    return new AppError(message, 503, true)
+    return new AppError(message, HttpStatus.SERVICE_UNAVAILABLE, true)
 }
 
 
@@ -91,6 +92,9 @@ const mapErrorNameToPreset = (err, req) => {
 
 const presetErrors = {
     'BadRequest': BadRequest,
+    'JsonWebTokenError': Unauthorized,
+    'TokenExpiredError': Unauthorized,
+    'NotBeforeError': Unauthorized,
     'ValidationError': BadRequest,
     'SyntaxError': BadRequest,
     'ReferenceError': InternalServerError,
