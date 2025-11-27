@@ -87,8 +87,7 @@ throw new AppError('Custom payment gateway error', 402, true);
 Avoid repetitive try/catch in every controller.
 
 ```js
-const { asyncHandler } = require('ds-express-errors/src/middleware/asyncHandler');
-const { Errors } = require('ds-express-errors');
+const { Errors, asyncHandler } = require('ds-express-errors');
 
 const getUser = asyncHandler(async (req, res, next) => {
     const data = await database.query();
@@ -135,6 +134,7 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 
 **Supported mappings:**
 
+- **Validation Libraries:** `ZodError` (Zod), `ValidationError` (Joi) — automatically formatted into readable messages.
 - **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`  
 - **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`  
 - **Sequelize:** `SequelizeUniqueConstraintError`, `SequelizeValidationError`  
