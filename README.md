@@ -87,8 +87,7 @@ throw new AppError('Custom payment gateway error', 402, true);
 Avoid repetitive try/catch in every controller.
 
 ```js
-const { asyncHandler } = require('ds-express-errors/src/middleware/asyncHandler');
-const { Errors } = require('ds-express-errors');
+const { Errors, asyncHandler } = require('ds-express-errors');
 
 const getUser = asyncHandler(async (req, res, next) => {
     const data = await database.query();

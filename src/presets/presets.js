@@ -1,72 +1,92 @@
-const AppError = require("../errors/AppError");
-const { logWarning } = require("../logger/logger");
-const { logDebug } = require("../logger/logger");
+const AppError = require("../errors/AppError")
+const { logDebug, logWarning } = require("../logger/logger")
 
-const isDebug = process.env.DEBUG === "true";
+const isDebug = process.env.DEBUG === "true"
 const isDev = process.env.NODE_ENV === 'development'
 
 
 
 function BadRequest(message = "Bad Request") {
-    return new AppError(message, 400, true);
+    return new AppError(message, 400, true)
 }
 
 function Unauthorized(message = "Unauthorized") {
-    return new AppError(message, 401, true);
+    return new AppError(message, 401, true)
 }
 
 function PaymentRequired(message = "Payment Required") {
-    return new AppError(message, 402, true);
+    return new AppError(message, 402, true)
 }
 
 function Forbidden(message = "Forbidden") {
-    return new AppError(message, 403, true);
+    return new AppError(message, 403, true)
 }
 
 function NotFound(message = "Not Found") {
-    return new AppError(message, 404, true);
+    return new AppError(message, 404, true)
 }
 
-
 function InternalServerError(message = "Internal Server Error", isOperational = false) {
-    return new AppError(message, 500, isOperational);
+    return new AppError(message, 500, isOperational)
 }
 
 function NotImplemented(message = "Not Implemented") {
-    return new AppError(message, 501, true);
+    return new AppError(message, 501, true)
 }
 
 function BadGateway(message = "Bad Gateway") {
-    return new AppError(message, 502, true);
+    return new AppError(message, 502, true)
 }
 
 function ServiceUnavailable(message = "Service Unavailable") {
-    return new AppError(message, 503, true);
+    return new AppError(message, 503, true)
 }
 
 
 const mapErrorNameToPreset = (err, req) => {
 
     if (!err || typeof err !== 'object') {
-        logWarning(`Non-object error received in mapErrorNameToPreset: ${JSON.stringify(err)}`, req);
-        return InternalServerError(isDev ? `Non-object error received: ${JSON.stringify(err)}` : "An unexpected error occurred.");
+        logWarning(`Non-object error received in mapErrorNameToPreset: ${JSON.stringify(err)}`, req)
+        return InternalServerError(isDev ? `Non-object error received: ${JSON.stringify(err)}` : "An unexpected error occurred.")
     }
 
-    const { name, code, message } = err;
+    const { name, code, message } = err
+
+    if (name === 'ZodError' && Array.isArray(err.issues)) {
+        const formatedMessages = err.issues.map(issue => {
+            const path = issue.path.join('.')
+            return `${path ? path + ': '  : ''}${issue.message}`
+        }).join('; ')
+
+        isDebug && logDebug(`Zod validation error issues: ${formatedMessages}`, req)
+
+        return BadRequest(`Validation error: ${formatedMessages}`)
+    }
+
+    if (err.isJoi === true && Array.isArray(err.details)) {
+        const formatedMessage = err.details
+            .map(detail => detail.message.replace(/"/g, ''))
+            .join('; ')
+            
+        isDebug && logDebug(`Joi validation error details: ${formatedMessage}`, req)
+
+        return BadRequest(`Validation Error: ${formatedMessage}`);
+    }
 
     if (code && String(code).startsWith("11")) {
         return BadRequest(`Duplicate field value entered: ${JSON.stringify(err.keyValue)}`)
     } 
+
     const presetError = presetErrors[name]
 
     if (presetError) {
         return presetError(message)
     }
     if (isDev || isDebug) {
-        logDebug(`Unknown error mapping: | name: ${name}, | code: ${code}, | message: ${message}, | stack: ${err.stack}`);
+        logDebug(`[Unknown error mapping]: => Name: ${name}, | Code: ${code}, | Message: ${message}`, req)
     }
     
-    return InternalServerError(isDev ? message : "An unexpected error occurred.");
+    return InternalServerError(isDev ? message : "An unexpected error occurred.")
 }
 
 const presetErrors = {
@@ -105,4 +125,4 @@ module.exports = {
     BadGateway,
     ServiceUnavailable,
     mapErrorNameToPreset
-};
+}
