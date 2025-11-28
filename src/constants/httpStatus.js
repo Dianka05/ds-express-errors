@@ -10,4 +10,4 @@ const HttpStatus = {
     SERVICE_UNAVAILABLE: 503,
 }
 
-export default HttpStatus
+module.exports = HttpStatus

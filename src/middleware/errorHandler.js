@@ -1,4 +1,4 @@
-const { default: HttpStatus } = require('../constants/httpStatus')
+const HttpStatus = require('../constants/httpStatus')
 const AppError = require('../errors/AppError')
 const { logError } = require('../logger/logger')
 const { mapErrorNameToPreset } = require('../presets/presets')
