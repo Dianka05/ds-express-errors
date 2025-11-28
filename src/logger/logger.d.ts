@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { AppError } from "../errors/AppError";
 
 export function logError(err: AppError, req?: Request): void;
