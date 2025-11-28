@@ -1,7 +1,7 @@
 {
   "name": "ds-express-errors",
   "version": "1.0.3",
-  "description": "Library for typed error handling for Express",
+  "description": "Centralized typed error handling library for Express with Zod/Joi/JWT support",
   "main": "index.js",
   "types": "index.d.ts",  
   "scripts": {
@@ -17,12 +17,17 @@
   "homepage": "https://github.com/dianka05/ds-express-errors#readme",
   "keywords": [
     "express",
+    "express-middleware",
     "errors",
     "error-handling",
+    "api-error",
     "middleware",
     "async",
     "typescript",
-    "logger"
+    "logger",
+    "zod",
+    "joi",
+    "jwt"
   ],
   "author": "Diana Stoyka",
   "license": "MIT",

@@ -78,6 +78,12 @@ const mapErrorNameToPreset = (err, req) => {
         return BadRequest(`Duplicate field value entered: ${JSON.stringify(err.keyValue)}`)
     } 
 
+    if (name === 'SyntaxError') {
+        if (err.status === HttpStatus.BAD_REQUEST || err.statusCode === HttpStatus.BAD_REQUEST) {
+            return BadRequest(message)
+        }
+    }
+
     const presetError = presetErrors[name]
 
     if (presetError) {
@@ -96,7 +102,6 @@ const presetErrors = {
     'TokenExpiredError': Unauthorized,
     'NotBeforeError': Unauthorized,
     'ValidationError': BadRequest,
-    'SyntaxError': BadRequest,
     'ReferenceError': InternalServerError,
     'TypeError': InternalServerError,
     'RangeError': InternalServerError,

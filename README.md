@@ -9,7 +9,7 @@ It provides ready-to-use error classes (HTTP Presets), a centralized error handl
 
 - **Ready-to-use HTTP presets:** `BadRequest`, `NotFound`, `Unauthorized`, and others, corresponding to standard HTTP codes.  
 - **Centralized handling:** One middleware catches all errors and formats them into a unified JSON response.  
-- **Automatic mapping:** Converts native errors (like MongoDB duplicate key errors or Prisma/Sequelize validation errors) into clear HTTP responses.  
+- **Automatic mapping:** Converts native errors (like JWT, MongoDB duplicate key errors or Prisma/Sequelize/Zod/Joi validation errors) into clear HTTP responses.  
 - **Logging:** Built-in logger with levels (`Error`, `Warning`, `Info`, `Debug`) and timestamps.  
 - **Security:** In production (`NODE_ENV=production`), stack traces are hidden; visible in development.  
 - **Global Handlers:** Automatically handles `uncaughtException` and `unhandledRejection` to prevent process crashes without logs.  
@@ -109,7 +109,7 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 | `Errors.BadRequest(message)` | 400 | Bad Request |
 | `Errors.Unauthorized(message)` | 401 | Unauthorized |
 | `Errors.PaymentRequired(message)` | 402 | Payment Required |
-| `Errors.Forbiddenmessagemsg)` | 403 | Forbidden |
+| `Errors.Forbidden(message)` | 403 | Forbidden |
 | `Errors.NotFound(message)` | 404 | Not Found |
 | `Errors.InternalServerError(message)` | 500 | Internal Server Error |
 | `Errors.NotImplemented(message)` | 501 | Not Implemented |
@@ -134,11 +134,12 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 
 **Supported mappings:**
 
+- **JWT:** `JsonWebTokenError`, `TokenExpiredError`, `NotBeforeError` → mapped to `401 Unauthorized`
 - **Validation Libraries:** `ZodError` (Zod), `ValidationError` (Joi) — automatically formatted into readable messages.
 - **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`  
 - **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`  
 - **Sequelize:** `SequelizeUniqueConstraintError`, `SequelizeValidationError`  
-- **JS Native:** `SyntaxError`, `ReferenceError`, `TypeError` → mapped to `500 Internal Server Error`
+- **JS Native:** `ReferenceError`, `TypeError` → mapped to `500`. `SyntaxError` is handled (400 for bad JSON body, 500 for code errors).
 
 ---
 
