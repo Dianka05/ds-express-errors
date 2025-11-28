@@ -1,6 +1,6 @@
 {
   "name": "ds-express-errors",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Centralized typed error handling library for Express with Zod/Joi/JWT support",
   "main": "index.js",
   "types": "index.d.ts",  
