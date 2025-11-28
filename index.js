@@ -2,7 +2,7 @@ const AppError = require("./src/errors/AppError");
 const { logError, logInfo, logWarning } = require("./src/logger/logger");
 const { asyncHandler } = require("./src/middleware/asyncHandler");
 const { errorHandler } = require("./src/middleware/errorHandler");
-const { NotFound, Unauthorized, BadRequest, InternalServerError, Forbidden, PaymentRequired, NotImplemented, BadGateway, ServiceUnavailable, mapErrorNameToPreset } = require("./src/presets/presets");
+const { NotFound, Unauthorized, BadRequest, InternalServerError, Forbidden, PaymentRequired, NotImplemented, BadGateway, ServiceUnavailable } = require("./src/presets/presets");
 
 const Errors = {
     BadRequest,
@@ -14,7 +14,6 @@ const Errors = {
     NotImplemented,
     BadGateway,
     ServiceUnavailable,
-    mapErrorNameToPreset
 }
 
 module.exports = {

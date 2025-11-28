@@ -11,5 +11,4 @@ export function NotImplemented(message?: string): AppError
 export function ServiceUnavailable(message?: string): AppError
 export function BadGateway(message?: string): AppError
 
-
 export function mapErrorNameToPreset(err: AppError, req?: Request): AppError

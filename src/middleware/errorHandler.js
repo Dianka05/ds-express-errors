@@ -1,3 +1,4 @@
+const HttpStatus = require('../constants/httpStatus')
 const AppError = require('../errors/AppError')
 const { logError } = require('../logger/logger')
 const { mapErrorNameToPreset } = require('../presets/presets')
@@ -26,13 +27,13 @@ function defaultErrorAnswer(err, req, res) {
 
 process.on('unhandledRejection', (reason) => {
     const errorMessage = reason instanceof Error ? reason.message : JSON.stringify(reason);
-    logError(new AppError(`Unhandled Rejection: ${errorMessage}`, 500, false));
+    logError(new AppError(`Unhandled Rejection: ${errorMessage}`, HttpStatus.INTERNAL_SERVER_ERROR, false));
     process.exit(1);
 })
 
 process.on('uncaughtException', (error) => {
     const msg = error instanceof Error ? error.message : JSON.stringify(error);
-    logError(new AppError(`Uncaught Exception: ${msg}`, 500, false));
+    logError(new AppError(`Uncaught Exception: ${msg}`, HttpStatus.INTERNAL_SERVER_ERROR, false));
     process.exit(1);
 })
 
