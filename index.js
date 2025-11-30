@@ -1,8 +1,8 @@
-const AppError = require("./src/errors/AppError");
-const { logError, logInfo, logWarning } = require("./src/logger/logger");
-const { asyncHandler } = require("./src/middleware/asyncHandler");
-const { errorHandler } = require("./src/middleware/errorHandler");
-const { NotFound, Unauthorized, BadRequest, InternalServerError, Forbidden, PaymentRequired, NotImplemented, BadGateway, ServiceUnavailable } = require("./src/presets/presets");
+const AppError = require("./src/errors/AppError")
+const { logError, logInfo, logWarning } = require("./src/logger/logger")
+const { asyncHandler } = require("./src/middleware/asyncHandler")
+const { errorHandler, initGlobalHandlers } = require("./src/middleware/errorHandler")
+const { NotFound, Unauthorized, BadRequest, InternalServerError, Forbidden, PaymentRequired, NotImplemented, BadGateway, ServiceUnavailable } = require("./src/presets/presets")
 
 const Errors = {
     BadRequest,
@@ -20,8 +20,9 @@ module.exports = {
     AppError,
     errorHandler,
     asyncHandler,
+    initGlobalHandlers,
     logError,
     logInfo,
     logWarning,
     Errors
-};
+}

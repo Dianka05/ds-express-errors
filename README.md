@@ -12,7 +12,7 @@ It provides ready-to-use error classes (HTTP Presets), a centralized error handl
 - **Automatic mapping:** Converts native errors (like JWT, MongoDB duplicate key errors or Prisma/Sequelize/Zod/Joi validation errors) into clear HTTP responses.  
 - **Logging:** Built-in logger with levels (`Error`, `Warning`, `Info`, `Debug`) and timestamps.  
 - **Security:** In production (`NODE_ENV=production`), stack traces are hidden; visible in development.  
-- **Global Handlers:** Automatically handles `uncaughtException` and `unhandledRejection` to prevent process crashes without logs.  
+- **Global Handlers:** Optional handling of `uncaughtException` and `unhandledRejection` with support for Graceful Shutdown (custom cleanup logic).
 - **TypeScript support:** Includes `.d.ts` files for full typing support.
 
 ---
@@ -96,6 +96,41 @@ const getUser = asyncHandler(async (req, res, next) => {
 });
 
 app.get('/data', getUser);
+```
+
+### 4. Global Process Handlers (Graceful Shutdown)
+
+You can explicitly enable handling of global errors (`uncaughtException`, `unhandledRejection`). This allows you to log the crash and perform cleanup (like closing server connections) before exiting.
+
+**Basic Usage:**
+Logs the error and exits (`process.exit(1)`).
+
+```js
+const { initGlobalHandlers } = require('ds-express-errors');
+
+// Initialize at the entry point of your app
+initGlobalHandlers();
+```
+
+**Advanced Usage (Custom Crash Logic):**
+Use `onCrash` to define custom behavior, such as closing the database or server gracefully.
+
+**Note**: When using `onCrash`, you are responsible for exiting the process manually!
+
+```js
+const { initGlobalHandlers } = require('ds-express-errors');
+
+const server = app.listen(3000);
+
+initGlobalHandlers({
+    onCrash: () => {
+        console.error('⚠️ Crash detected! Closing server...');
+        server.close(() => {
+            console.log('✅ Server closed. Exiting process.');
+            process.exit(1); 
+        });
+    }
+});
 ```
 
 ---
