@@ -9,13 +9,13 @@ function errorHandler(err, req, res, next) {
     if (err instanceof AppError) {
         defaultErrorAnswer(err, req, res)
     } else {
-        const genericError = mapErrorNameToPreset(err, req);
+        const genericError = mapErrorNameToPreset(err, req)
         defaultErrorAnswer(genericError, req, res)
     }
 }
 
 function defaultErrorAnswer(err, req, res) {
-    logError(err, req);
+    logError(err, req)
     res.status(err.statusCode).json({
         status: err.isOperational ? 'fail' : 'error',
         method: req.method,
@@ -27,25 +27,25 @@ function defaultErrorAnswer(err, req, res) {
 
 function initGlobalHandlers(options = {}) {
 
-    const { exitOnUnhandledRejection = true, exitOnUncaughtException = true, onCrash } = options;
+    const { exitOnUnhandledRejection = true, exitOnUncaughtException = true, onCrash } = options
 
     const handleCrash = () => {
         if (onCrash && typeof onCrash === 'function') {
-            onCrash();
-        } else process.exit(1);
+            onCrash()
+        } else process.exit(1)
     }
 
     process.on('unhandledRejection', (reason) => {
-        const errorMessage = reason instanceof Error ? reason.message : JSON.stringify(reason);
-        logError(new AppError(`Unhandled Rejection: ${errorMessage}`, HttpStatus.INTERNAL_SERVER_ERROR, false));
+        const errorMessage = reason instanceof Error ? reason.message : JSON.stringify(reason)
+        logError(new AppError(`Unhandled Rejection: ${errorMessage}`, HttpStatus.INTERNAL_SERVER_ERROR, false))
         if (exitOnUnhandledRejection) {
             handleCrash()
         }
     })
 
     process.on('uncaughtException', (error) => {
-        const msg = error instanceof Error ? error.message : JSON.stringify(error);
-        logError(new AppError(`Uncaught Exception: ${msg}`, HttpStatus.INTERNAL_SERVER_ERROR, false));
+        const msg = error instanceof Error ? error.message : JSON.stringify(error)
+        logError(new AppError(`Uncaught Exception: ${msg}`, HttpStatus.INTERNAL_SERVER_ERROR, false))
         if (exitOnUncaughtException) {
             handleCrash()
         }
