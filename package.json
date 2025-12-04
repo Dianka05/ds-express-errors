@@ -1,6 +1,6 @@
 {
   "name": "ds-express-errors",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Centralized typed error handling library for Express with Zod/Joi/JWT support",
   "main": "index.js",
   "types": "index.d.ts",  
@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/dianka05/ds-express-errors/issues"
   },
-  "homepage": "https://github.com/dianka05/ds-express-errors#readme",
+  "homepage": "https://ds-express-errors.dev",
   "keywords": [
     "express",
     "express-middleware",
