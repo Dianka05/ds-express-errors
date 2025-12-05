@@ -3,16 +3,20 @@
 **DS Express Errors** is library for standardizing error handling in Node.js applications built with Express.  
 It provides ready-to-use error classes (HTTP Presets), a centralized error handler (middleware), automatic database error mapping (Mongoose, Prisma, Sequelize), and built-in logging.
 
+--- 
+
+**Official website & detailed documentation with examples**: [ds-express-errors](https://ds-express-errors.dev)
+
 ---
 
 ## ✨ Features
 
 - **Ready-to-use HTTP presets:** `BadRequest`, `NotFound`, `Unauthorized`, and others, corresponding to standard HTTP codes.  
 - **Centralized handling:** One middleware catches all errors and formats them into a unified JSON response.  
-- **Automatic mapping:** Converts native errors (like MongoDB duplicate key errors or Prisma/Sequelize validation errors) into clear HTTP responses.  
+- **Automatic mapping:** Converts native errors (like JWT, MongoDB duplicate key errors or Prisma/Sequelize/Zod/Joi validation errors) into clear HTTP responses.  
 - **Logging:** Built-in logger with levels (`Error`, `Warning`, `Info`, `Debug`) and timestamps.  
 - **Security:** In production (`NODE_ENV=production`), stack traces are hidden; visible in development.  
-- **Global Handlers:** Automatically handles `uncaughtException` and `unhandledRejection` to prevent process crashes without logs.  
+- **Global Handlers:** Optional handling of `uncaughtException` and `unhandledRejection` with support for Graceful Shutdown (custom cleanup logic).
 - **TypeScript support:** Includes `.d.ts` files for full typing support.
 
 ---
@@ -98,6 +102,41 @@ const getUser = asyncHandler(async (req, res, next) => {
 app.get('/data', getUser);
 ```
 
+### 4. Global Process Handlers (Graceful Shutdown)
+
+You can explicitly enable handling of global errors (`uncaughtException`, `unhandledRejection`). This allows you to log the crash and perform cleanup (like closing server connections) before exiting.
+
+**Basic Usage:**
+Logs the error and exits (`process.exit(1)`).
+
+```js
+const { initGlobalHandlers } = require('ds-express-errors');
+
+// Initialize at the entry point of your app
+initGlobalHandlers();
+```
+
+**Advanced Usage (Custom Crash Logic):**
+Use `onCrash` to define custom behavior, such as closing the database or server gracefully.
+
+**Note**: When using `onCrash`, you are responsible for exiting the process manually!
+
+```js
+const { initGlobalHandlers } = require('ds-express-errors');
+
+const server = app.listen(3000);
+
+initGlobalHandlers({
+    onCrash: () => {
+        console.error('⚠️ Crash detected! Closing server...');
+        server.close(() => {
+            console.log('✅ Server closed. Exiting process.');
+            process.exit(1); 
+        });
+    }
+});
+```
+
 ---
 
 ## 📋 Available Error Presets
@@ -109,8 +148,10 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 | `Errors.BadRequest(message)` | 400 | Bad Request |
 | `Errors.Unauthorized(message)` | 401 | Unauthorized |
 | `Errors.PaymentRequired(message)` | 402 | Payment Required |
-| `Errors.Forbiddenmessagemsg)` | 403 | Forbidden |
+| `Errors.Forbidden(message)` | 403 | Forbidden |
 | `Errors.NotFound(message)` | 404 | Not Found |
+| `Errors.Conflict(message)` | 409 | Conflict |
+| `Errors.TooManyRequests(message)` | 429 | TooManyRequests |
 | `Errors.InternalServerError(message)` | 500 | Internal Server Error |
 | `Errors.NotImplemented(message)` | 501 | Not Implemented |
 | `Errors.BadGateway(message)` | 502 | Bad Gateway |
@@ -126,6 +167,50 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 
 - `DEBUG=true` — outputs extra debug info about error mapping (`mapErrorNameToPreset`)  
 
+### ⚙️ Configuration (Custom Response Format)
+
+You can customize the structure of the error response sent to the client. This is useful if you need to adhere to a specific API standard (e.g., JSON:API) or hide certain fields.
+
+Use `setConfig` before initializing the error handler middleware.
+
+**Default Format**
+
+If no config is provided, the library uses the default format:
+
+```json
+{
+  "status": "error", // or 'fail'
+  "method": "GET",
+  "url": "/api/resource",
+  "message": "Error description",
+  "stack": // showed when NODE_ENV=development
+}
+
+```
+
+```javascript
+const { setConfig, errorHandler } = require('ds-express-errors');
+
+// Optional: Customize response format
+setConfig({
+    formatError: (err, {req, isDev}) => {
+        return {
+            success: false,
+            error: {
+                code: err.statusCode,
+                message: err.message,
+                // Add stack trace only in development
+                ...(isDev ? { debug_stack: err.stack } : {})
+            }
+        };
+    }
+});
+
+const app = express();
+// ... your routes ...
+app.use(errorHandler);
+```
+
 ---
 
 ## 🛡 Third-Party Error Mapping
@@ -134,11 +219,12 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 
 **Supported mappings:**
 
+- **JWT:** `JsonWebTokenError`, `TokenExpiredError`, `NotBeforeError` → mapped to `401 Unauthorized`
 - **Validation Libraries:** `ZodError` (Zod), `ValidationError` (Joi) — automatically formatted into readable messages.
 - **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`  
 - **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`  
 - **Sequelize:** `SequelizeUniqueConstraintError`, `SequelizeValidationError`  
-- **JS Native:** `SyntaxError`, `ReferenceError`, `TypeError` → mapped to `500 Internal Server Error`
+- **JS Native:** `ReferenceError`, `TypeError` → mapped to `500`. `SyntaxError` is handled (400 for bad JSON body, 500 for code errors).
 
 ---
 
