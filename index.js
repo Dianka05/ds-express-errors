@@ -1,3 +1,4 @@
+const { setConfig } = require("./config")
 const AppError = require("./src/errors/AppError")
 const { logError, logInfo, logWarning } = require("./src/logger/logger")
 const { asyncHandler } = require("./src/middleware/asyncHandler")
@@ -26,5 +27,6 @@ module.exports = {
     logError,
     logInfo,
     logWarning,
-    Errors
+    Errors,
+    setConfig
 }
