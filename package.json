@@ -1,7 +1,7 @@
 {
   "name": "ds-express-errors",
-  "version": "1.1.1",
-  "description": "Centralized typed error handling library for Express with Zod/Joi/JWT support",
+  "version": "1.1.2",
+  "description": "Centralized typed error handling library for Express with Zod/Joi/JWT and DB (Prisma/Mongoose) support",
   "main": "index.js",
   "types": "index.d.ts",  
   "scripts": {
@@ -27,7 +27,12 @@
     "logger",
     "zod",
     "joi",
-    "jwt"
+    "jwt",
+    "mongoose",
+    "prisma",
+    "sequelize",
+    "orm",
+    "database"
   ],
   "author": "Diana Stoyka",
   "license": "MIT",
