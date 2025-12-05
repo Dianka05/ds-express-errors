@@ -163,6 +163,50 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 
 - `DEBUG=true` — outputs extra debug info about error mapping (`mapErrorNameToPreset`)  
 
+### ⚙️ Configuration (Custom Response Format)
+
+You can customize the structure of the error response sent to the client. This is useful if you need to adhere to a specific API standard (e.g., JSON:API) or hide certain fields.
+
+Use `setConfig` before initializing the error handler middleware.
+
+**Default Format**
+
+If no config is provided, the library uses the default format:
+
+```json
+{
+  "status": "error", // or 'fail'
+  "method": "GET",
+  "url": "/api/resource",
+  "message": "Error description",
+  "stack": // showed when NODE_ENV=development
+}
+
+```
+
+```javascript
+const { setConfig, errorHandler } = require('ds-express-errors');
+
+// Optional: Customize response format
+setConfig({
+    formatError: (err, req, isDev) => {
+        return {
+            success: false,
+            error: {
+                code: err.statusCode,
+                message: err.message,
+                // Add stack trace only in development
+                ...(isDev ? { debug_stack: err.stack } : {})
+            }
+        };
+    }
+});
+
+const app = express();
+// ... your routes ...
+app.use(errorHandler);
+```
+
 ---
 
 ## 🛡 Third-Party Error Mapping

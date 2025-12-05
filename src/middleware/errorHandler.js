@@ -1,3 +1,4 @@
+const { config } = require('../../config')
 const HttpStatus = require('../constants/httpStatus')
 const AppError = require('../errors/AppError')
 const { logError } = require('../logger/logger')
@@ -16,13 +17,8 @@ function errorHandler(err, req, res, next) {
 
 function defaultErrorAnswer(err, req, res) {
     logError(err, req)
-    res.status(err.statusCode).json({
-        status: err.isOperational ? 'fail' : 'error',
-        method: req.method,
-        url: req.originalUrl,
-        message: err.message,
-        ...(isDev ? { stack: err.stack } : {})
-    })
+    const resBody = config.formatError(err, req, isDev)
+    res.status(err.statusCode).json(resBody)
 }
 
 function initGlobalHandlers(options = {}) {
