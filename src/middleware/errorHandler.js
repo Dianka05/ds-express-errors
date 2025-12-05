@@ -1,4 +1,4 @@
-const { config } = require('../../config')
+const { config } = require('../config/config')
 const HttpStatus = require('../constants/httpStatus')
 const AppError = require('../errors/AppError')
 const { logError } = require('../logger/logger')

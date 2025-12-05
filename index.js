@@ -1,4 +1,4 @@
-const { setConfig } = require("./config")
+const { setConfig } = require("./src/config/config")
 const AppError = require("./src/errors/AppError")
 const { logError, logInfo, logWarning } = require("./src/logger/logger")
 const { asyncHandler } = require("./src/middleware/asyncHandler")
