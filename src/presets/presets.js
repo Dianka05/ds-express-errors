@@ -5,8 +5,6 @@ const { logDebug, logWarning } = require("../logger/logger")
 const isDebug = process.env.DEBUG === "true"
 const isDev = process.env.NODE_ENV === 'development'
 
-
-
 function BadRequest(message = "Bad Request") {
     return new AppError(message, HttpStatus.BAD_REQUEST, true)
 }
@@ -27,6 +25,14 @@ function NotFound(message = "Not Found") {
     return new AppError(message, HttpStatus.NOT_FOUND, true)
 }
 
+function Conflict(message = "Conflict") {
+    return new AppError(message, HttpStatus.CONFLICT, true)
+}
+
+function TooManyRequests(message = "Too Many Requests") {
+    return new AppError(message, HttpStatus.TOO_MANY_REQUESTS, true)
+}
+
 function InternalServerError(message = "Internal Server Error", isOperational = false) {
     return new AppError(message, HttpStatus.INTERNAL_SERVER_ERROR, isOperational)
 }
@@ -43,6 +49,59 @@ function ServiceUnavailable(message = "Service Unavailable") {
     return new AppError(message, HttpStatus.SERVICE_UNAVAILABLE, true)
 }
 
+const presetErrors = {
+    // 400
+    'BadRequest': BadRequest,
+    'ValidationError': BadRequest,
+    'CastError': BadRequest, // Mongoose
+    'DuplicateKeyError': BadRequest, // Mongoose (legacy name usage)
+    'SequelizeUniqueConstraintError': BadRequest, 
+    'SequelizeValidationError': BadRequest,
+    'PrismaClientKnownRequestError': BadRequest,
+    'PrismaClientUnknownRequestError': BadRequest,
+    
+    // 401
+    'JsonWebTokenError': Unauthorized,
+    'TokenExpiredError': Unauthorized,
+    'NotBeforeError': Unauthorized,
+    'UnauthorizedError': Unauthorized, // express-jwt
+    'Unauthorized': Unauthorized,
+
+    // 402
+    'PaymentRequired': PaymentRequired,
+
+    // 403
+    'Forbidden': Forbidden,
+    'ForbiddenError': Forbidden,
+
+    // 404
+    'NotFound': NotFound,
+    'NotFoundError': NotFound,
+
+    // 409 (NEW)
+    'Conflict': Conflict,
+    'ConflictError': Conflict,
+
+    // 429 (NEW)
+    'TooManyRequests': TooManyRequests,
+    'TooManyRequestsError': TooManyRequests,
+    'RateLimitError': TooManyRequests,
+
+    // 500
+    'InternalServerError': InternalServerError,
+    'ReferenceError': InternalServerError,
+    'TypeError': InternalServerError,
+    'RangeError': InternalServerError,
+
+    // 501
+    'NotImplemented': NotImplemented,
+
+    // 502
+    'BadGateway': BadGateway,
+
+    // 503
+    'ServiceUnavailable': ServiceUnavailable    
+}
 
 const mapErrorNameToPreset = (err, req) => {
 
@@ -96,39 +155,14 @@ const mapErrorNameToPreset = (err, req) => {
     return InternalServerError(isDev ? message : "An unexpected error occurred.")
 }
 
-const presetErrors = {
-    'BadRequest': BadRequest,
-    'JsonWebTokenError': Unauthorized,
-    'TokenExpiredError': Unauthorized,
-    'NotBeforeError': Unauthorized,
-    'ValidationError': BadRequest,
-    'ReferenceError': InternalServerError,
-    'TypeError': InternalServerError,
-    'RangeError': InternalServerError,
-    'UnauthorizedError': Unauthorized,
-    'ForbiddenError': Forbidden,
-    'CastError': BadRequest,
-    'DuplicateKeyError': BadRequest,
-    'SequelizeUniqueConstraintError': BadRequest,
-    'SequelizeValidationError': BadRequest,
-    'PrismaClientKnownRequestError': BadRequest,
-    'PrismaClientUnknownRequestError': BadRequest,
-    'Unauthorized': Unauthorized,
-    'PaymentRequired': PaymentRequired,
-    'Forbidden': Forbidden,
-    'NotFound': NotFound,
-    'InternalServerError': InternalServerError,
-    'NotImplemented': NotImplemented,
-    'BadGateway': BadGateway,
-    'ServiceUnavailable': ServiceUnavailable    
-}
-
 module.exports = {
     BadRequest,
     Unauthorized,
     PaymentRequired,
     Forbidden,
     NotFound,
+    Conflict,
+    TooManyRequests,
     InternalServerError,
     NotImplemented,
     BadGateway,
