@@ -1,4 +1,4 @@
-const { config } = require('../../config')
+const { config } = require('../config/config')
 const HttpStatus = require('../constants/httpStatus')
 const AppError = require('../errors/AppError')
 const { logError } = require('../logger/logger')
@@ -17,7 +17,8 @@ function errorHandler(err, req, res, next) {
 
 function defaultErrorAnswer(err, req, res) {
     logError(err, req)
-    const resBody = config.formatError(err, req, isDev)
+    const options = {req, isDev}
+    const resBody = config.formatError(err, options)
     res.status(err.statusCode).json(resBody)
 }
 

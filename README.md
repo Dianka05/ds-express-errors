@@ -189,7 +189,7 @@ const { setConfig, errorHandler } = require('ds-express-errors');
 
 // Optional: Customize response format
 setConfig({
-    formatError: (err, req, isDev) => {
+    formatError: (err, {req, isDev}) => {
         return {
             success: false,
             error: {
