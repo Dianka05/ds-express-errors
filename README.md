@@ -3,6 +3,10 @@
 **DS Express Errors** is library for standardizing error handling in Node.js applications built with Express.  
 It provides ready-to-use error classes (HTTP Presets), a centralized error handler (middleware), automatic database error mapping (Mongoose, Prisma, Sequelize), and built-in logging.
 
+--- 
+
+**Official website & detailed documentation with examples**: [ds-express-errors](https://ds-express-errors.dev)
+
 ---
 
 ## ✨ Features
