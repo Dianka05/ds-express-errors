@@ -146,6 +146,8 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 | `Errors.PaymentRequired(message)` | 402 | Payment Required |
 | `Errors.Forbidden(message)` | 403 | Forbidden |
 | `Errors.NotFound(message)` | 404 | Not Found |
+| `Errors.Conflict(message)` | 409 | Conflict |
+| `Errors.TooManyRequests(message)` | 429 | TooManyRequests |
 | `Errors.InternalServerError(message)` | 500 | Internal Server Error |
 | `Errors.NotImplemented(message)` | 501 | Not Implemented |
 | `Errors.BadGateway(message)` | 502 | Bad Gateway |
