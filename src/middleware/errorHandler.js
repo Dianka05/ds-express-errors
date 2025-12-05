@@ -17,7 +17,8 @@ function errorHandler(err, req, res, next) {
 
 function defaultErrorAnswer(err, req, res) {
     logError(err, req)
-    const resBody = config.formatError(err, req, isDev)
+    const options = {req, isDev}
+    const resBody = config.formatError(err, options)
     res.status(err.statusCode).json(resBody)
 }
 

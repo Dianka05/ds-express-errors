@@ -1,5 +1,5 @@
 let config = {
-    formatError: (err, req, isDev) => ({ 
+    formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
         method: req.method,
         url: req.originalUrl,
@@ -7,7 +7,6 @@ let config = {
         ...(isDev ? { stack: err.stack } : {})
     })
 }
-
 const setConfig = (newOptions) => {
     Object.assign(config, newOptions)
 }
