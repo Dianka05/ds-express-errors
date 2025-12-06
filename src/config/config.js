@@ -1,4 +1,5 @@
 let config = {
+    customMappers: [],
     devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
