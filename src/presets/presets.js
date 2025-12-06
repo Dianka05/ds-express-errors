@@ -110,18 +110,18 @@ const presetErrors = {
 
 const mapErrorNameToPreset = (err, req) => {
 
-    const isDevEnviroment = checkIsDev()
+    const isDevEnvironment = checkIsDev()
 
     if (config.customMappers && config.customMappers.length > 0) {
-        for (const mapper in config.customMappers) {
-            const element = config.customMappers[mapper];
-            return element(err)
+        for (const mapper of config.customMappers) {
+            const mapperFunc = mapper(err, req);
+            if (mapperFunc) return mapperFunc
         }
     }
 
     if (!err || typeof err !== 'object') {
         logWarning(`Non-object error received in mapErrorNameToPreset: ${JSON.stringify(err)}`, req)
-        return InternalServerError(isDevEnviroment ? `Non-object error received: ${JSON.stringify(err)}` : "An unexpected error occurred.")
+        return InternalServerError(isDevEnvironment ? `Non-object error received: ${JSON.stringify(err)}` : "An unexpected error occurred.")
     }
 
     const { name, code, message } = err
@@ -209,11 +209,11 @@ const mapErrorNameToPreset = (err, req) => {
     if (presetError) {
         return presetError(`${name}: ${message}`)
     }
-    if (isDevEnviroment || isDebug) {
+    if (isDevEnvironment || isDebug) {
         logDebug(`[Unknown error mapping]: => Name: ${name}, | Code: ${code}, | Message: ${message}`, req)
     }
     
-    return InternalServerError(isDevEnviroment ? message : "An unexpected error occurred.")
+    return InternalServerError(isDevEnvironment ? message : "An unexpected error occurred.")
 }
 
 module.exports = {

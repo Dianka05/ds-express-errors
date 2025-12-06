@@ -1,5 +1,5 @@
 let config = {
-    devEnviroments: ['dev', 'development'],
+    devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
         method: req.method,
@@ -13,7 +13,7 @@ const setConfig = (newOptions) => {
 }
 
 const checkIsDev = () => {
-    return config.devEnviroments.includes(process.env.NODE_ENV);
+    return config.devEnvironments.includes(process.env.NODE_ENV);
 }
 
 module.exports = {config, setConfig, checkIsDev}
