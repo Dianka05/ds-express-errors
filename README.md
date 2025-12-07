@@ -162,7 +162,7 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
   - `development` — stack trace included in response
   - `production` (or any other) — stack trace hidden, only `message` and `status` returned  
 
-  You can define your own dev enviroment name using `setConfig`
+  You can define your own dev environment name using `setConfig`
 
 
 ### ⚙️ Configuration
@@ -171,7 +171,7 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 
 You can customize the structure of the error response sent to the client. This is useful if you need to adhere to a specific API standard (e.g., JSON:API) or hide certain fields.
 
-Also you can customize dev environment by using `devEnviroments: []`
+Also you can customize dev environment by using `devEnvironments: []`
 
 Use `setConfig` before initializing the error handler middleware.
 
@@ -194,7 +194,7 @@ setConfig({
             //... other if
         }
     ],
-    devEnviroments: ['development', 'dev'],
+    devEnvironments: ['development', 'dev'],
     formatError: (err, {req, isDev}) => {
         return {
             success: false,
