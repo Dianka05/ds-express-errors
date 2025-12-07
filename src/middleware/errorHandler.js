@@ -3,6 +3,7 @@ const HttpStatus = require('../constants/httpStatus')
 const AppError = require('../errors/AppError')
 const { logError } = require('../logger/logger')
 const { mapErrorNameToPreset } = require('../presets/presets')
+const { safeStringify } = require('../utils/safeStringify')
 
 function errorHandler(err, req, res, next) {
     if (err instanceof AppError) {
@@ -47,7 +48,7 @@ function initGlobalHandlers(options = {}) {
     }
 
     process.on('unhandledRejection', (reason) => {
-        const errorMessage = reason instanceof Error ? reason.message : JSON.stringify(reason)
+        const errorMessage = reason instanceof Error ? reason.message : safeStringify(reason)
         logError(new AppError(`Unhandled Rejection: ${errorMessage}`, HttpStatus.INTERNAL_SERVER_ERROR, false))
         if (exitOnUnhandledRejection) {
             handleCrash(reason)
@@ -55,7 +56,7 @@ function initGlobalHandlers(options = {}) {
     })
 
     process.on('uncaughtException', (error) => {
-        const msg = error instanceof Error ? error.message : JSON.stringify(error)
+        const msg = error instanceof Error ? error.message : safeStringify(error)
         logError(new AppError(`Uncaught Exception: ${msg}`, HttpStatus.INTERNAL_SERVER_ERROR, false))
         if (exitOnUncaughtException) {
             handleCrash(error)
