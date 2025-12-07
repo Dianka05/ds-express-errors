@@ -3,6 +3,7 @@ const { checkIsDev } = require("../config/config")
 const HttpStatus = require("../constants/httpStatus")
 const AppError = require("../errors/AppError")
 const { logDebug, logWarning } = require("../logger/logger")
+const { safeStringify } = require("../utils/safeStringify")
 
 const isDebug = process.env.DEBUG === "true"
 
@@ -120,8 +121,8 @@ const mapErrorNameToPreset = (err, req) => {
     }
 
     if (!err || typeof err !== 'object') {
-        logWarning(`Non-object error received in mapErrorNameToPreset: ${JSON.stringify(err)}`, req)
-        return InternalServerError(isDevEnvironment ? `Non-object error received: ${JSON.stringify(err)}` : "An unexpected error occurred.")
+        logWarning(`Non-object error received in mapErrorNameToPreset: ${safeStringify(err)}`, req)
+        return InternalServerError(isDevEnvironment ? `Non-object error received: ${safeStringify(err)}` : "An unexpected error occurred.")
     }
 
     const { name, code, message } = err
@@ -148,7 +149,7 @@ const mapErrorNameToPreset = (err, req) => {
     }
 
     if (code && String(code).startsWith("11")) { //MONGOOSE
-        return BadRequest(`Duplicate field value entered: ${JSON.stringify(err.keyValue).replace(/"/g, '')}`)
+        return BadRequest(`Duplicate field value entered: ${safeStringify(err.keyValue).replace(/"/g, '')}`)
     } else if (name === 'ValidationError' && err.errors) {
         const {errors} = err
         const formattedMessage = Object.values(errors)

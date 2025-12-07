@@ -3,6 +3,12 @@
   "version": "1.3.0",
   "description": "Centralized typed error handling library for Express with Zod/Joi/JWT and DB (Prisma/Mongoose) support",
   "main": "index.js",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "require": "./index.js"
+    }
+  },
   "types": "index.d.ts",  
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
