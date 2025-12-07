@@ -55,7 +55,6 @@ const presetErrors = {
     'ValidationError': BadRequest,
     'CastError': BadRequest, // Mongoose
     'DuplicateKeyError': BadRequest, // Mongoose (legacy name usage)
-    'MongoServerError': BadRequest,
     'SequelizeUniqueConstraintError': BadRequest, 
     'SequelizeValidationError': BadRequest,
     'SequelizeForeignKeyConstraintError': BadRequest,
@@ -74,7 +73,7 @@ const presetErrors = {
 
     // 402
     'PaymentRequired': PaymentRequired,
-
+    
     // 403
     'Forbidden': Forbidden,
     'ForbiddenError': Forbidden,
@@ -82,21 +81,22 @@ const presetErrors = {
     // 404
     'NotFound': NotFound,
     'NotFoundError': NotFound,
-
+    
     // 409 (NEW)
     'Conflict': Conflict,
     'ConflictError': Conflict,
-
+    
     // 429 (NEW)
     'TooManyRequests': TooManyRequests,
     'TooManyRequestsError': TooManyRequests,
     'RateLimitError': TooManyRequests,
-
+    
     // 500
     'InternalServerError': InternalServerError,
     'ReferenceError': InternalServerError,
     'TypeError': InternalServerError,
     'RangeError': InternalServerError,
+    'MongoServerError': InternalServerError,
 
     // 501
     'NotImplemented': NotImplemented,

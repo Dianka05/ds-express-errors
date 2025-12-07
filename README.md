@@ -1,7 +1,7 @@
 # 📦 DS Express Errors
 
 **DS Express Errors** is library for standardizing error handling in Node.js applications built with Express.  
-It provides ready-to-use error classes (HTTP Presets), a centralized error handler (middleware), automatic database error mapping (Mongoose, Prisma, Sequelize), and built-in logging.
+It provides ready-to-use error classes (HTTP Presets), a centralized error handler (middleware), automatic: database error mapping (Mongoose, Prisma, Sequelize), validation error mapping (Zod, Joi), JWT and built-in simple logging.
 
 ---
 
@@ -11,7 +11,8 @@ It provides ready-to-use error classes (HTTP Presets), a centralized error handl
 - **Centralized handling:** One middleware catches all errors and formats them into a unified JSON response.  
 - **Automatic mapping:** Converts native errors (like JWT, MongoDB duplicate key errors or Prisma/Sequelize/Zod/Joi validation errors) into clear HTTP responses.  
 - **Logging:** Built-in logger with levels (`Error`, `Warning`, `Info`, `Debug`) and timestamps.  
-- **Security:** In production (`NODE_ENV=production`), stack traces are hidden; visible in development.  
+- **Security:** In production (`NODE_ENV=production`), stack traces are hidden; visible in development. 
+- **Fully Customizable Response:** Adapt the error structure to match your API standards (JSON:API, legacy wrappers, etc.).  
 - **Global Handlers:** Optional handling of `uncaughtException` and `unhandledRejection` with support for Graceful Shutdown (custom cleanup logic).
 - **TypeScript support:** Includes `.d.ts` files for full typing support.
 
@@ -147,7 +148,7 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 | `Errors.Forbidden(message)` | 403 | Forbidden |
 | `Errors.NotFound(message)` | 404 | Not Found |
 | `Errors.Conflict(message)` | 409 | Conflict |
-| `Errors.TooManyRequests(message)` | 429 | TooManyRequests |
+| `Errors.TooManyRequests(message)` | 429 | Too Many Requests |
 | `Errors.InternalServerError(message)` | 500 | Internal Server Error |
 | `Errors.NotImplemented(message)` | 501 | Not Implemented |
 | `Errors.BadGateway(message)` | 502 | Bad Gateway |
@@ -158,37 +159,42 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 ## ⚙️ Configuration & Environment Variables
 
 - `NODE_ENV`:
-  - `development` — stack trace included in response  
+  - `development` — stack trace included in response
   - `production` (or any other) — stack trace hidden, only `message` and `status` returned  
+
+  You can define your own dev enviroment name using `setConfig`
+
+
+### ⚙️ Configuration
 
 - `DEBUG=true` — outputs extra debug info about error mapping (`mapErrorNameToPreset`)  
 
-### ⚙️ Configuration (Custom Response Format)
-
 You can customize the structure of the error response sent to the client. This is useful if you need to adhere to a specific API standard (e.g., JSON:API) or hide certain fields.
 
+Also you can customize dev environment by using `devEnviroments: []`
+
 Use `setConfig` before initializing the error handler middleware.
-
-**Default Format**
-
-If no config is provided, the library uses the default format:
-
-```json
-{
-  "status": "error", // or 'fail'
-  "method": "GET",
-  "url": "/api/resource",
-  "message": "Error description",
-  "stack": // showed when NODE_ENV=development
-}
-
-```
 
 ```javascript
 const { setConfig, errorHandler } = require('ds-express-errors');
 
 // Optional: Customize response format
 setConfig({
+    customMappers: [
+        (err) => {
+            if (err.name === 'newError') {
+                return Errors.BadRequest()
+            }
+            //... other if
+        },
+        (err, req) => {
+            if (err.name === 'newErrorWithReq') {
+                return Errors.Forbidden(`[${req.baseUrl}] ${err.message}`)
+            }
+            //... other if
+        }
+    ],
+    devEnviroments: ['development', 'dev'],
     formatError: (err, {req, isDev}) => {
         return {
             success: false,
@@ -207,6 +213,38 @@ const app = express();
 app.use(errorHandler);
 ```
 
+**Default Response Format**
+
+If no config is provided, the library uses the default format:
+
+```json
+{
+  "status": "error", // or 'fail'
+  "method": "GET",
+  "url": "/api/resource",
+  "message": "Error description",
+  "stack": // showed when NODE_ENV= development or dev
+}
+
+```
+
+**Default Config Format**
+
+
+```javascript
+let config = {
+    customMappers: [],
+    devEnvironments: ['dev', 'development'],
+    formatError: (err, {req, isDev}) => ({ 
+        status: err.isOperational ? 'fail' : 'error',
+        method: req.method,
+        url: req.originalUrl,
+        message: err.message,
+        ...(isDev ? { stack: err.stack } : {})
+    })
+}
+```
+
 ---
 
 ## 🛡 Third-Party Error Mapping
@@ -217,9 +255,9 @@ app.use(errorHandler);
 
 - **JWT:** `JsonWebTokenError`, `TokenExpiredError`, `NotBeforeError` → mapped to `401 Unauthorized`
 - **Validation Libraries:** `ZodError` (Zod), `ValidationError` (Joi) — automatically formatted into readable messages.
-- **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`  
-- **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`  
-- **Sequelize:** `SequelizeUniqueConstraintError`, `SequelizeValidationError`  
+- **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`, `MongoServerError` is handled (400 for bad JSON body, 500 for code errors).
+- **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`, `PrismaClientRustPanicError`, `PrismaClientInitializationError`, `PrismaClientValidationError`
+- **Sequelize:** `SequelizeUniqueConstraintError`, `SequelizeValidationError`, `SequelizeForeignKeyConstraintError` 
 - **JS Native:** `ReferenceError`, `TypeError` → mapped to `500`. `SyntaxError` is handled (400 for bad JSON body, 500 for code errors).
 
 ---
