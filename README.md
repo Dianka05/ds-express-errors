@@ -118,25 +118,34 @@ initGlobalHandlers();
 ```
 
 **Advanced Usage (Custom Crash Logic):**
-Use `onCrash` to define custom behavior, such as closing the database or server gracefully.
+UYou can provide an `onCrash` callback to perform cleanup tasks (e.g., closing DB connections, sending alerts) before the process exits.
 
-**Note**: When using `onCrash`, you are responsible for exiting the process manually!
+**New in v1.3.0:**
+- The callback receives the `error` object that caused the crash.
+- Supports `async/await`. The library waits for your promise to resolve (up to 10s) before exiting.
+- **No need to call `process.exit(1)` manually** — the library does it for you automatically after your callback finishes.
 
-```js
+```javascript
 const { initGlobalHandlers } = require('ds-express-errors');
 
-const server = app.listen(3000);
-
 initGlobalHandlers({
-    onCrash: () => {
-        console.error('⚠️ Crash detected! Closing server...');
-        server.close(() => {
-            console.log('✅ Server closed. Exiting process.');
-            process.exit(1); 
-        });
-    }
+  // Optional: Prevent exit on unhandledRejection (default: true)
+  exitOnUnhandledRejection: true,
+
+  // Async callback with error access
+  onCrash: async (err) => {
+    console.error('CRASH DETECTED:', err.message); // Access the error!
+
+    // Send alert to Sentry/Telegram
+    await sendAlertToAdmin(err);
+
+    // Close resources
+    await db.disconnect();
+    console.log('Cleanup finished.');
+
+    // The library will automatically execute process.exit(1) after this function
+  }
 });
-```
 
 ---
 
