@@ -1,12 +1,14 @@
-const isDev = process.env.NODE_ENV === 'development'
+const { checkIsDev } = require("../config/config")
+
 
 function logError(error, req) {
+    const isDevEnvironment = checkIsDev()
     const timestamp = getTimestamp()
     if (error) {
         const isOperational = error.isOperational || false
         const message = error.message || 'Unknown error'
         const statusCode = error.statusCode || 'N/A'
-        const stack = isDev ? error.stack : undefined
+        const stack = isDevEnvironment ? error.stack : undefined
         const code = error.code ? `[${error.code}]` : ''
         const name = error.name || ''
 

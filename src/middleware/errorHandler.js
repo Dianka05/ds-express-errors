@@ -1,10 +1,8 @@
-const { config } = require('../config/config')
+const { config, checkIsDev } = require('../config/config')
 const HttpStatus = require('../constants/httpStatus')
 const AppError = require('../errors/AppError')
 const { logError } = require('../logger/logger')
 const { mapErrorNameToPreset } = require('../presets/presets')
-
-const isDev = process.env.NODE_ENV === 'development'
 
 function errorHandler(err, req, res, next) {
     if (err instanceof AppError) {
@@ -17,6 +15,7 @@ function errorHandler(err, req, res, next) {
 
 function defaultErrorAnswer(err, req, res) {
     logError(err, req)
+    const isDev = checkIsDev()
     const options = {req, isDev}
     const resBody = config.formatError(err, options)
     res.status(err.statusCode).json(resBody)
