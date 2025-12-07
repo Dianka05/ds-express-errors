@@ -25,17 +25,32 @@ function initGlobalHandlers(options = {}) {
 
     const { exitOnUnhandledRejection = true, exitOnUncaughtException = true, onCrash } = options
 
-    const handleCrash = () => {
+    const handleCrash = async (error) => {
         if (onCrash && typeof onCrash === 'function') {
-            onCrash()
-        } else process.exit(1)
+            try {
+                const cleanupOrPromise = onCrash(error);
+
+                if (cleanupOrPromise instanceof Promise) {
+                    await Promise.race([
+                        cleanupOrPromise,
+                        new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Shutdown timed out (10s limit)')), 10000)
+                        )
+                    ]);
+                }
+            } catch (err) {
+                console.error('⚠️ Error during graceful shutdown execution:', err);
+            }
+        }
+        
+        process.exit(1);
     }
 
     process.on('unhandledRejection', (reason) => {
         const errorMessage = reason instanceof Error ? reason.message : JSON.stringify(reason)
         logError(new AppError(`Unhandled Rejection: ${errorMessage}`, HttpStatus.INTERNAL_SERVER_ERROR, false))
         if (exitOnUnhandledRejection) {
-            handleCrash()
+            handleCrash(reason)
         }
     })
 
@@ -43,7 +58,7 @@ function initGlobalHandlers(options = {}) {
         const msg = error instanceof Error ? error.message : JSON.stringify(error)
         logError(new AppError(`Uncaught Exception: ${msg}`, HttpStatus.INTERNAL_SERVER_ERROR, false))
         if (exitOnUncaughtException) {
-            handleCrash()
+            handleCrash(error)
         }
     })
 }
