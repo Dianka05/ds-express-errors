@@ -98,22 +98,6 @@ describe('DS Express Errors Library', () => {
             }));
         });
 
-        test('should map Mongoose duplicate key error (code 11000)', () => {
-            const mongooseError = { 
-                name: 'MongoError', 
-                code: 11000, 
-                keyValue: { email: 'test@test.com' } 
-            };
-            
-            errorHandler(mongooseError, req, res, next);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                message: expect.stringContaining('Duplicate field value')
-            }));
-        });
-
-
         test('should handle Zod validation error', () => {
             const zodError = {
                 name: 'ZodError',
@@ -161,6 +145,211 @@ describe('DS Express Errors Library', () => {
                 message: expect.stringContaining('password is required')
             }));
         });
+
+        describe('Mongoose Errors Handling', () => {
+            test('should handle Mongoose validation error', () => {
+                const mongooseValidationError = {
+                    name: "ValidationError",
+                    message: "User validation failed",
+                    errors: {
+                        email: {
+                        name: "ValidatorError",
+                        message: "Email is required",
+                        kind: "required",
+                        path: "email",
+                        value: ""
+                        },
+                        age: {
+                        name: "ValidatorError",
+                        message: "Age must be a number",
+                        kind: "Number",
+                        path: "age",
+                        value: "abc"
+                        }
+                    }
+                };
+                
+                errorHandler(mongooseValidationError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    status: 'fail',
+                    message: expect.stringContaining('Email is required = [Value]: \"\"; Age must be a number = [Value]: \"abc\"')
+                }));
+            });
+            test('should map Mongoose duplicate key error (code 11000)', () => {
+                const mongooseError = { 
+                    name: 'MongoError', 
+                    code: 11000, 
+                    keyValue: { email: 'test@test.com' } 
+                };
+                
+                errorHandler(mongooseError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Duplicate field value')
+                }));
+            });
+            test('should map Mongoose Cast Error', () => {
+                const mongooseCastError = {
+                    name: "CastError",
+                    message: 'Cast to Number failed for value "abc" at path "age"',
+                    kind: "Number",
+                    value: "abc",
+                    path: "age",
+                    reason: {}
+                };
+                
+                errorHandler(mongooseCastError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('CastError: Cast to Number failed for value \"abc\" at path \"age\"')
+                }));
+            });
+        })
+
+        describe('Sequilize Errors Handling', () => {
+            test('should map Sequelize Foreign Key Error', () => {
+                const sequelizeForeignKeyError = {
+                    name: "SequelizeForeignKeyConstraintError",
+                    message: "insert or update on table violates foreign key constraint",
+                    fields: ["userId"],
+                    table: "Orders",
+                    index: "orders_userId_fkey",
+                    reltype: "foreign key"
+                };
+                
+                errorHandler(sequelizeForeignKeyError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('SequelizeForeignKeyConstraintError: Fields: \"userId\"; insert or update on table violates foreign key constraint')
+                }));
+            });
+            test('should map Sequelize Unique Error', () => {
+                const sequelizeUniqueError = {
+                    name: "SequelizeUniqueConstraintError",
+                    message: "email must be unique",
+                    errors: [
+                        {
+                            message: "email must be unique",
+                            type: "unique violation",
+                            path: "email",
+                            value: "user@example.com",
+                            origin: "DB"
+                        }
+                    ],
+                    fields: {
+                        email: "user@example.com"
+                    }
+                };
+                
+                errorHandler(sequelizeUniqueError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('SequelizeUniqueConstraintError: email must be unique')
+                }));
+            });
+            test('should map Sequelize Validation Error', () => {
+                const sequelizeValidationError = {
+                    name: "SequelizeValidationError",
+                    message: "Validation error",
+                    errors: [
+                        {
+                            message: "email must be unique",
+                            type: "unique violation",
+                            path: "email",
+                            value: "test@example.com",
+                            origin: "DB",
+                            instance: undefined,
+                            validatorKey: "not_unique"
+                        },
+                        {
+                            message: "Age must be an integer",
+                            type: "Validation error",
+                            path: "age",
+                            value: "abc",
+                            origin: "FUNCTION",
+                            validatorKey: "isInt"
+                        }
+                    ]
+                };
+                
+                errorHandler(sequelizeValidationError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('SequelizeValidationError: email must be unique; Age must be an integer')
+                }));
+            });
+        })
+
+        describe('Prisma Errors Handling', () => {
+            test('should map Prisma Foreign Key P2003', () => {
+                const prismaError = {
+                    code: "P2003",
+                    clientVersion: "5.0.0",
+                    message: "Foreign key constraint failed",
+                    meta: {
+                        field_name: "userId"
+                    }
+                }
+                
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('[P2003]: Field Name: userId; [MESSAGE] Foreign key constraint failed')
+                }));
+            });
+            test('should map Prisma Error P2002', () => {
+                const prismaError = {
+                    code: "P2002",
+                    clientVersion: "5.0.0",
+                    message: "Unique constraint failed on the fields: (`email`, `age`)",
+                    meta: {
+                        target: ["email", "age"]
+                    }
+                }
+                
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('[P2002]: Target: [email; age]; [MESSAGE] Unique constraint failed on the fields: (`email`, `age`)')
+                }));
+            });
+            test('should map Prisma Error', () => {
+                const prismaError = {
+                    clientVersion: "5.0.0",
+                    message: "Some error",
+                }
+                
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Unknown Prisma error detail; [MESSAGE] Some error')
+                }));
+            });
+        })
+
+        // describe('Syntax Error', () => {
+
+        //     test('should map JSON parse error', () => {
+        //         const error = new SyntaxError("Unexpected token '<', \"<HTML><HEA\"... is not valid JSON");
+
+        //         errorHandler(error, req, res, next);
+
+        //         expect(res.status).toHaveBeenCalledWith(400);
+        //         expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+        //             message: expect.stringContaining("Unexpected token '\u003C', \"\u003CHTML\u003E\u003CHEA\"... is not valid JSON")
+        //         }));
+        //     });
+        // })
 
     });
 });
