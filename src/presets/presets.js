@@ -94,9 +94,6 @@ const presetErrors = {
     
     // 500
     'InternalServerError': InternalServerError,
-    'ReferenceError': InternalServerError,
-    'TypeError': InternalServerError,
-    'RangeError': InternalServerError,
     'MongoServerError': InternalServerError,
 
     // 501
@@ -135,7 +132,7 @@ const mapErrorNameToPreset = (err, req) => {
 
         isDebug && logDebug(`Zod validation error issues: ${formattedMessages}`, req)
 
-        return BadRequest(`Validation error: ${formattedMessages}`)
+        return BadRequest(`Validation error: ${isDevEnvironment ? formattedMessages : 'validation error'}`)
     }
 
     if (err.isJoi === true && Array.isArray(err.details)) { //JOI
@@ -145,18 +142,18 @@ const mapErrorNameToPreset = (err, req) => {
             
         isDebug && logDebug(`Joi validation error details: ${formattedMessage}`, req)
 
-        return BadRequest(`Validation Error: ${formattedMessage}`);
+        return BadRequest(`Validation Error: ${isDevEnvironment ? formattedMessages : 'validation error'}`);
     }
 
     if (code && String(code).startsWith("11")) { //MONGOOSE
-        return BadRequest(`Duplicate field value entered: ${safeStringify(err.keyValue).replace(/"/g, '')}`)
+        return BadRequest(`Duplicate field value entered${isDevEnvironment ? ": "+ safeStringify(err.keyValue).replace(/"/g, '') : ''}`)
     } else if (name === 'ValidationError' && err.errors) {
         const {errors} = err
         const formattedMessage = Object.values(errors)
             .map(e => {
                 return `${e.message} = [Value]: "${e.value}"`
             }).join('; ')
-        return BadRequest(`${formattedMessage}`)
+        return BadRequest(`${isDevEnvironment ? formattedMessage : 'validation error'}`)
     }
 
     const isPrisma = err.clientVersion && typeof err.clientVersion === 'string'
@@ -177,7 +174,7 @@ const mapErrorNameToPreset = (err, req) => {
 
         isDebug && logDebug(`Prisma error: ${formattedMessage}`, req)
 
-        return BadRequest(formattedMessage);
+        return BadRequest(isDevEnvironment ? formattedMessage : `Prisma error ${hasCode}`);
     }
 
     const isSequelizeValidationError = name === 'SequelizeValidationError' && Array.isArray(err.errors)
@@ -190,13 +187,17 @@ const mapErrorNameToPreset = (err, req) => {
             
         isDebug && logDebug(`Sequelize validation error: ${formattedMessage}`, req)
 
-        return BadRequest(`${name}: ${formattedMessage}`);
+        return BadRequest(`${isDevEnvironment ? `${name}: ` + formattedMessage : 'validation error'}`);
     } else if (isSequelizeForeignKeyError) {
          const formattedMessage = `Fields: "${err.fields.join('; ')}"; ${message}`
             
         isDebug && logDebug(`Sequelize foreign key error: ${formattedMessage}`, req)
 
-        return BadRequest(`${name}: ${formattedMessage}`);
+        return BadRequest(`${isDevEnvironment ? `${name}: ` + formattedMessage : 'foreign key error'}`);
+    }
+
+    if (name === 'CastError' && !isDevEnvironment) {
+        return BadRequest(`Invalid value for field: ${err.path}`)
     }
 
     if (name === 'SyntaxError') {
