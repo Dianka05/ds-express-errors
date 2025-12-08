@@ -142,7 +142,7 @@ const mapErrorNameToPreset = (err, req) => {
             
         isDebug && logDebug(`Joi validation error details: ${formattedMessage}`, req)
 
-        return BadRequest(`Validation Error: ${isDevEnvironment ? formattedMessages : 'validation error'}`);
+        return BadRequest(`Validation Error: ${isDevEnvironment ? formattedMessage : 'validation error'}`);
     }
 
     if (code && String(code).startsWith("11")) { //MONGOOSE
