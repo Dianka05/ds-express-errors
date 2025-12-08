@@ -93,7 +93,6 @@ const presetErrors = {
     'RateLimitError': TooManyRequests,
     
     // 500
-    'InternalServerError': InternalServerError,
     'MongoServerError': InternalServerError,
 
     // 501
