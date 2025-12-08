@@ -146,7 +146,7 @@ initGlobalHandlers({
     // The library will automatically execute process.exit(1) after this function
   }
 });
-```
+
 ---
 
 ## 📋 Available Error Presets
