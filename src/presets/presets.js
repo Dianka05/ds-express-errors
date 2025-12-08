@@ -200,8 +200,10 @@ const mapErrorNameToPreset = (err, req) => {
     }
 
     if (name === 'SyntaxError') {
-        if (err.status === HttpStatus.BAD_REQUEST || err.statusCode === HttpStatus.BAD_REQUEST) {
-            return BadRequest(message)
+        const isBadRequestCode = err.status === HttpStatus.BAD_REQUEST || err.statusCode === HttpStatus.BAD_REQUEST
+        const isJsonError = message.includes('JSON')
+        if (isBadRequestCode || isJsonError) {
+            return BadRequest(isDevEnvironment ? message : "Invalid JSON format")        
         }
     }
 
