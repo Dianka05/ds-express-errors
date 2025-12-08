@@ -175,12 +175,12 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
   - `development` — stack trace included in response
   - `production` (or any other) — stack trace hidden, only `message` and `status` returned  
 
-- `DEBUG=true` — outputs extra debug info about error mapping (`mapErrorNameToPreset`)  
-
-You can define your own dev environment name using `setConfig`
+  You can define your own dev environment name using `setConfig`
 
 
 ### ⚙️ Configuration
+
+- `DEBUG=true` — outputs extra debug info about error mapping (`mapErrorNameToPreset`)  
 
 You can customize the structure of the error response sent to the client. This is useful if you need to adhere to a specific API standard (e.g., JSON:API) or hide certain fields.
 
@@ -191,7 +191,7 @@ Use `setConfig` before initializing the error handler middleware.
 ```javascript
 const { setConfig, errorHandler } = require('ds-express-errors');
 
-// Optional: Customize
+// Optional: Customize response format
 setConfig({
     customMappers: [
         (err) => {
@@ -233,8 +233,8 @@ If no config is provided, the library uses the default format:
 ```json
 {
   "status": "error", // or 'fail'
-  "method": "GET", // showed when NODE_ENV= development or dev
-  "url": "/api/resource", // showed when NODE_ENV= development or dev
+  "method": "GET",
+  "url": "/api/resource",
   "message": "Error description",
   "stack": // showed when NODE_ENV= development or dev
 }
@@ -250,12 +250,10 @@ let config = {
     devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
+        method: req.method,
+        url: req.originalUrl,
         message: err.message,
-        ...(isDev ? { 
-            method: req.method,
-            url: req.originalUrl,
-            stack: err.stack
-         } : {})
+        ...(isDev ? { stack: err.stack } : {})
     })
 }
 ```
@@ -296,6 +294,8 @@ let config = {
 ```json
 {
   "status": "error",
+  "method": "GET",
+  "url": "/api/users/999",
   "message": "User not found"
 }
 
