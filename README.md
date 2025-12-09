@@ -15,7 +15,7 @@ It provides ready-to-use error classes (HTTP Presets), a centralized error handl
 - **Centralized handling:** One middleware catches all errors and formats them into a unified JSON response.  
 - **Automatic mapping:** Converts native errors (like JWT, MongoDB duplicate key errors or Prisma/Sequelize/Zod/Joi validation errors) into clear HTTP responses.  
 - **Logging:** Built-in logger with levels (`Error`, `Warning`, `Info`, `Debug`) and timestamps.  
-- **Security:** In production (`NODE_ENV=production`), stack traces are hidden; visible in development. 
+- **Security:** In production (`NODE_ENV=production`), stack traces, sensitive data are hidden; visible in development. 
 - **Fully Customizable Response:** Adapt the error structure to match your API standards (JSON:API, legacy wrappers, etc.).  
 - **Global Handlers:** Optional handling of `uncaughtException` and `unhandledRejection` with support for Graceful Shutdown (custom cleanup logic).
 - **TypeScript support:** Includes `.d.ts` files for full typing support.
@@ -146,6 +146,7 @@ initGlobalHandlers({
     // The library will automatically execute process.exit(1) after this function
   }
 });
+```
 
 ---
 
@@ -250,10 +251,12 @@ let config = {
     devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
-        method: req.method,
-        url: req.originalUrl,
         message: err.message,
-        ...(isDev ? { stack: err.stack } : {})
+        ...(isDev ? { 
+            method: req.method,
+            url: req.originalUrl,
+            stack: err.stack
+         } : {})
     })
 }
 ```
