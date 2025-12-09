@@ -362,5 +362,121 @@ describe('DS Express Errors Library', () => {
             });
         })
 
+        describe('Production Mode Security', () => {
+            const { setConfig } = require('../src/config/config');
+            
+            beforeAll(() => {
+                process.env.NODE_ENV = 'production';
+                setConfig({ devEnvironments: ['dev', 'development'] });
+            });
+
+            afterAll(() => {
+                process.env.NODE_ENV = 'development';
+            });
+
+            test('should hide stack trace in production', () => {
+                const error = new Error('Secret Database Info');
+                errorHandler(error, req, res, next);
+                
+                expect(res.json).toHaveBeenCalledWith(expect.not.objectContaining({
+                    url: expect.anything(),
+                    method: expect.anything(),
+                    stack: expect.anything()
+                }));
+            });
+
+            test('should hide detailed Mongoose validation errors in production', () => {
+                const mongooseValidationError = {
+                    name: "ValidationError",
+                    errors: {
+                        email: { message: "Internal Validator Failed", value: "sensitive_data" }
+                    }
+                };
+                errorHandler(mongooseValidationError, req, res, next);
+
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: 'validation error' 
+                }));
+            });
+        });
+
+        describe('JWT (JSON Web Token)', () => {
+            test('should map JsonWebTokenError to 401 Unauthorized', () => {
+                const jwtError = { name: 'JsonWebTokenError', message: 'invalid token' };
+                
+                errorHandler(jwtError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(401);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('JsonWebTokenError: invalid token')
+                }));
+            });
+
+            test('should map TokenExpiredError to 401', () => {
+                const expiredError = { name: 'TokenExpiredError', message: 'jwt expired' };
+                errorHandler(expiredError, req, res, next);
+                expect(res.status).toHaveBeenCalledWith(401);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('TokenExpiredError: jwt expired')
+                }));
+            });
+        })
+
+        describe('Library tests', () => {
+            const { Errors } = require('../index');
+
+            test('should handle non-object errors gracefully', () => {
+                const stringError = "I am just a string";
+                
+                errorHandler(stringError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Non-object error received')
+                }));
+            });
+
+            test.each([
+                ['BadRequest', 400],
+                ['Unauthorized', 401],
+                ['PaymentRequired', 402],
+                ['Forbidden', 403],
+                ['NotFound', 404],
+                ['Conflict', 409],
+                ['TooManyRequests', 429],
+                ['InternalServerError', 500],
+                ['NotImplemented', 501],
+                ['BadGateway', 502],
+                ['ServiceUnavailable', 503]
+            ])('Errors.%s should return status %i', (methodName, statusCode) => {
+                const err = Errors[methodName]('Test');
+                expect(err.statusCode).toBe(statusCode);
+            });
+        })
+
+         describe('Custom Mappers Configuration', () => {
+            const { setConfig } = require('../src/config/config');
+
+            test('should use custom mapper if provided', () => {
+                setConfig({
+                    customMappers: [
+                        (err) => {
+                            if (err.message === 'ImATeapot') return new AppError('Teapot Error', 418);
+                        }
+                    ]
+                });
+
+                const weirdError = new Error('ImATeapot');
+                errorHandler(weirdError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(418);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: 'Teapot Error'
+                }));
+            });
+        });
+
     });
+
+    
 });
