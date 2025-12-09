@@ -147,6 +147,7 @@ initGlobalHandlers({
   }
 });
 ```
+
 ---
 
 ## 📋 Available Error Presets
@@ -250,10 +251,12 @@ let config = {
     devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
-        method: req.method,
-        url: req.originalUrl,
         message: err.message,
-        ...(isDev ? { stack: err.stack } : {})
+        ...(isDev ? { 
+            method: req.method,
+            url: req.originalUrl,
+            stack: err.stack
+         } : {})
     })
 }
 ```
