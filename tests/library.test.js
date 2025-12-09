@@ -337,19 +337,30 @@ describe('DS Express Errors Library', () => {
             });
         })
 
-        // describe('Syntax Error', () => {
+        describe('Syntax Error', () => {
 
-        //     test('should map JSON parse error', () => {
-        //         const error = new SyntaxError("Unexpected token '<', \"<HTML><HEA\"... is not valid JSON");
+            test('should map JSON parse error to 400', () => {
+                const error = new SyntaxError("Unexpected token '<', \"<HTML><HEA\"... is not valid JSON");
 
-        //         errorHandler(error, req, res, next);
+                errorHandler(error, req, res, next);
 
-        //         expect(res.status).toHaveBeenCalledWith(400);
-        //         expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        //             message: expect.stringContaining("Unexpected token '\u003C', \"\u003CHTML\u003E\u003CHEA\"... is not valid JSON")
-        //         }));
-        //     });
-        // })
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining("Unexpected token '\u003C', \"\u003CHTML\u003E\u003CHEA\"... is not valid JSON")
+                }));
+            });
+
+            test('should map SyntaxError to 500', () => {
+                const error = new SyntaxError("Unexpected token ':'");
+
+                errorHandler(error, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining("Unexpected token ':'")
+                }));
+            });
+        })
 
     });
 });
