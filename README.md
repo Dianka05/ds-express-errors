@@ -234,8 +234,8 @@ If no config is provided, the library uses the default format:
 ```json
 {
   "status": "error", // or 'fail'
-  "method": "GET",
-  "url": "/api/resource",
+  "method": "GET", // showed when NODE_ENV= development or dev
+  "url": "/api/resource", // showed when NODE_ENV= development or dev
   "message": "Error description",
   "stack": // showed when NODE_ENV= development or dev
 }
@@ -297,8 +297,6 @@ let config = {
 ```json
 {
   "status": "error",
-  "method": "GET",
-  "url": "/api/users/999",
   "message": "User not found"
 }
 
