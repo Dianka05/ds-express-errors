@@ -1,5 +1,6 @@
 let config = {
     customMappers: [],
+    customLogger: null,
     devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
@@ -15,6 +16,10 @@ const setConfig = (newOptions) => {
     Object.assign(config, newOptions)
 }
 
+const checkLoggerExist = () => {
+    return config.customLogger !== null
+}
+
 const checkIsDev = () => {
     return config.devEnvironments.includes(process.env.NODE_ENV);
 }
@@ -23,4 +28,4 @@ const checkIsDebug = () => {
     return process.env.DEBUG === "true"
 }
 
-module.exports = {config, setConfig, checkIsDev, checkIsDebug}
+module.exports = {config, setConfig, checkIsDev, checkIsDebug, checkLoggerExist}
