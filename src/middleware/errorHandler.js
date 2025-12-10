@@ -40,7 +40,7 @@ function initGlobalHandlers(options = {}) {
                     ]);
                 }
             } catch (err) {
-                console.error('⚠️ Error during graceful shutdown execution:', err);
+                logError('⚠️ Error during graceful shutdown execution:', err);
             }
         }
         

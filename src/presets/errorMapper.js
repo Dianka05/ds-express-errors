@@ -32,7 +32,6 @@ const mapErrorNameToPreset = (err, req) => {
     const { name, code, message } = err
 
     for (const mapper of mappers) {
-        console.log('mapper: ', mapper)
         const mapperFunc = mapper(err, req)
         if (mapperFunc) return mapperFunc
     }
