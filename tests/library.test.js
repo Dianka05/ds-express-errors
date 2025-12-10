@@ -11,7 +11,9 @@ global.console.log = jest.fn();
 global.console.debug = jest.fn();
 
 describe('DS Express Errors Library', () => {
-    
+    beforeAll(() => {
+        process.env.DEBUG = 'true'; 
+    });
     describe('AppError & Presets', () => {
         test('should create AppError correctly', () => {
             const err = new AppError('Test Error', 418, false);
