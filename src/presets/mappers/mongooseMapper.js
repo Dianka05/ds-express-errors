@@ -2,7 +2,7 @@ const { checkIsDev } = require("../../config/config")
 const { safeStringify } = require("../../utils/safeStringify")
 const { BadRequest } = require("../presets")
 
-const mongooseMapper = (err) => {
+const mongooseMapper = (err, req) => {
     const isDevEnvironment = checkIsDev()
     const { name, code } = err
 

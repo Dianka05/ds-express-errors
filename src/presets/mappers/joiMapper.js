@@ -2,7 +2,7 @@ const { checkIsDev } = require("../../config/config");
 const { checkIsDebug } = require("../../config/config");
 const { BadRequest } = require("../presets");
 
-const joiMapper = (err) => {
+const joiMapper = (err, req) => {
     const isDevEnvironment = checkIsDev()
     if (err.isJoi === true && Array.isArray(err.details)) { //JOI
         const formattedMessage = err.details

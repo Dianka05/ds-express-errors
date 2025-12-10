@@ -3,7 +3,7 @@ const { checkIsDebug } = require("../../config/config");
 const { logDebug } = require("../../logger/logger");
 const { BadRequest } = require("../presets");
 
-const prismaMapper = (err) => {
+const prismaMapper = (err, req) => {
     const isDevEnvironment = checkIsDev()
     const isPrisma = err.clientVersion && typeof err.clientVersion === 'string'
 

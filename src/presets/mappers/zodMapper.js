@@ -2,7 +2,7 @@ const { checkIsDev } = require("../../config/config")
 const { checkIsDebug } = require("../../config/config")
 const { BadRequest } = require("../presets")
 
-const zodMapper = (err) => {
+const zodMapper = (err, req) => {
     const isDevEnvironment = checkIsDev()
      if (Array.isArray(err.issues) && err.issues[0]?.path) { //ZOD
         const formattedMessages = err.issues.map(issue => {
