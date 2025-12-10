@@ -1,5 +1,6 @@
 const { checkIsDev } = require("../../config/config")
 const { checkIsDebug } = require("../../config/config")
+const { logDebug } = require("../../logger/logger")
 const { BadRequest } = require("../presets")
 
 const zodMapper = (err, req) => {

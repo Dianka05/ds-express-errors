@@ -7,11 +7,19 @@ const { joiMapper } = require("./mappers/joiMapper")
 const { mongooseMapper } = require("./mappers/mongooseMapper")
 const { nameMapper } = require("./mappers/nameMapper")
 const { prismaMapper } = require("./mappers/prismaMapper")
-const { sequlizeMapper } = require("./mappers/sequelizeMapper")
+const { sequelizeMapper } = require("./mappers/sequelizeMapper")
 const { zodMapper } = require("./mappers/zodMapper")
 const { presetErrors, InternalServerError } = require("./presets")
 
-const mappers = [customMapper, zodMapper, joiMapper, mongooseMapper, prismaMapper, sequlizeMapper, nameMapper]
+const mappers = [
+    customMapper, 
+    zodMapper, 
+    joiMapper, 
+    mongooseMapper, 
+    prismaMapper, 
+    sequelizeMapper, 
+    nameMapper
+]
 
 const mapErrorNameToPreset = (err, req) => {
     const isDevEnvironment = checkIsDev()
@@ -24,6 +32,7 @@ const mapErrorNameToPreset = (err, req) => {
     const { name, code, message } = err
 
     for (const mapper of mappers) {
+        console.log('mapper: ', mapper)
         const mapperFunc = mapper(err, req)
         if (mapperFunc) return mapperFunc
     }
