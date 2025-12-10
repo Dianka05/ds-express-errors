@@ -2,7 +2,7 @@ const { checkIsDev } = require("../../config/config")
 const { checkIsDebug } = require("../../config/config")
 const { BadRequest } = require("../presets")
 
-const sequlizeMapper = (err) => {
+const sequelizeMapper = (err, req) => {
     const isDevEnvironment = checkIsDev()
     const { name, message } = err
 
@@ -26,4 +26,4 @@ const sequlizeMapper = (err) => {
     }
 }
 
-module.exports = {sequlizeMapper}
+module.exports = {sequelizeMapper}

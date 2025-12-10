@@ -7,7 +7,7 @@ const { joiMapper } = require("./mappers/joiMapper")
 const { mongooseMapper } = require("./mappers/mongooseMapper")
 const { nameMapper } = require("./mappers/nameMapper")
 const { prismaMapper } = require("./mappers/prismaMapper")
-const { sequlizeMapper } = require("./mappers/sequilizeMapper")
+const { sequlizeMapper } = require("./mappers/sequelizeMapper")
 const { zodMapper } = require("./mappers/zodMapper")
 const { presetErrors, InternalServerError } = require("./presets")
 
