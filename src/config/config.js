@@ -19,4 +19,8 @@ const checkIsDev = () => {
     return config.devEnvironments.includes(process.env.NODE_ENV);
 }
 
-module.exports = {config, setConfig, checkIsDev}
+const checkIsDebug = () => {
+    return process.env.DEBUG === "true"
+}
+
+module.exports = {config, setConfig, checkIsDev, checkIsDebug}
