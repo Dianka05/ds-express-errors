@@ -36,6 +36,26 @@ describe('DS Express Errors Library', () => {
             expect(err.isOperational).toBe(false);
         });
     });
+    describe('Custom Logger Integration', () => {
+        const { setConfig } = require('../src/config/config');
+        const { errorHandler } = require('../src/middleware/errorHandler');
+
+        test('should use custom logger if provided', () => {
+            const customLogger = {
+                error: jest.fn(),
+                info: jest.fn(),
+                warn: jest.fn(),
+                debug: jest.fn(),
+            };
+
+            setConfig({ customLogger });
+
+            const error = new Error('Logger Test');
+            errorHandler(error, {}, { status: () => ({ json: () => {} }) }, () => {});
+
+            expect(customLogger.error).toHaveBeenCalled();
+        });
+    });
 
     describe('asyncHandler Middleware', () => {
         test('should call next with error if promise rejects', async () => {
