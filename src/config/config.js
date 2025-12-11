@@ -17,7 +17,20 @@ const setConfig = (newOptions) => {
 }
 
 const checkLoggerExist = () => {
-    return config.customLogger !== null
+    if (config.customLogger === null) return false
+    const supportedLoggerLevels = [
+        'error',
+        'warn',
+        'info',
+        'debug'
+    ]
+
+    for (const loggerType of supportedLoggerLevels) {
+        if (!(loggerType in config.customLogger) && typeof config.customLogger[loggerType] !== 'function') {
+            return false
+        }
+    }
+    return true
 }
 
 const checkIsDev = () => {
