@@ -1,7 +1,7 @@
 # 📦 DS Express Errors
 
 **DS Express Errors** is library for standardizing error handling in Node.js applications built with Express.  
-It provides ready-to-use error classes (HTTP Presets), a centralized error handler (middleware), automatic: database error mapping (Mongoose, Prisma, Sequelize), validation error mapping (Zod, Joi), JWT and built-in simple logging.
+It provides ready-to-use error classes (HTTP Presets), a centralized error handler (middleware), automatic: database error mapping (Mongoose, Prisma, Sequelize), validation error mapping (Zod, Joi), JWT and built-in simple logging or custom loggers (Winston/Pino).
 
 --- 
 
@@ -15,6 +15,7 @@ It provides ready-to-use error classes (HTTP Presets), a centralized error handl
 - **Centralized handling:** One middleware catches all errors and formats them into a unified JSON response.  
 - **Automatic mapping:** Converts native errors (like JWT, MongoDB duplicate key errors or Prisma/Sequelize/Zod/Joi validation errors) into clear HTTP responses.  
 - **Logging:** Built-in logger with levels (`Error`, `Warning`, `Info`, `Debug`) and timestamps.  
+- **Custom Logger:** Easily integrate external loggers like **Winston** or **Pino** by passing them into the configuration.
 - **Security:** In production (`NODE_ENV=production`), stack traces, sensitive data are hidden; visible in development. 
 - **Fully Customizable Response:** Adapt the error structure to match your API standards (JSON:API, legacy wrappers, etc.).  
 - **Global Handlers:** Optional handling of `uncaughtException` and `unhandledRejection` with support for Graceful Shutdown (custom cleanup logic).
@@ -191,21 +192,17 @@ Use `setConfig` before initializing the error handler middleware.
 
 ```javascript
 const { setConfig, errorHandler } = require('ds-express-errors');
+const logger = require('./utils/logger'); // Your Winston/Pino logger
 
-// Optional: Customize response format
+// Optional: Customize response format and Logger
 setConfig({
+    customLogger: logger, 
+    
     customMappers: [
         (err) => {
             if (err.name === 'newError') {
                 return Errors.BadRequest()
             }
-            //... other if
-        },
-        (err, req) => {
-            if (err.name === 'newErrorWithReq') {
-                return Errors.Forbidden(`[${req.baseUrl}] ${err.message}`)
-            }
-            //... other if
         }
     ],
     devEnvironments: ['development', 'dev'],
@@ -215,7 +212,6 @@ setConfig({
             error: {
                 code: err.statusCode,
                 message: err.message,
-                // Add stack trace only in development
                 ...(isDev ? { debug_stack: err.stack } : {})
             }
         };
@@ -227,6 +223,24 @@ const app = express();
 app.use(errorHandler);
 ```
 
+### 🔌 Custom Logger (New in v1.4.0)
+
+You can connect your own logger (like Winston, Pino) instead of the built-in console logger.
+The object must support 4 methods: `error`, `warn`, `info`, `debug`.
+
+```javascript
+const { setConfig } = require('ds-express-errors');
+const winston = require('winston'); // Example
+
+const logger = winston.createLogger({
+    // ... your winston config
+});
+
+// Pass your logger instance
+setConfig({
+    customLogger: logger
+});
+
 **Default Response Format**
 
 If no config is provided, the library uses the default format:
@@ -234,8 +248,8 @@ If no config is provided, the library uses the default format:
 ```json
 {
   "status": "error", // or 'fail'
-  "method": "GET",
-  "url": "/api/resource",
+  "method": "GET", // showed when NODE_ENV= development or dev
+  "url": "/api/resource", // showed when NODE_ENV= development or dev
   "message": "Error description",
   "stack": // showed when NODE_ENV= development or dev
 }
@@ -297,8 +311,6 @@ let config = {
 ```json
 {
   "status": "error",
-  "method": "GET",
-  "url": "/api/users/999",
   "message": "User not found"
 }
 

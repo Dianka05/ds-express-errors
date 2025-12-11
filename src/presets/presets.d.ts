@@ -1,4 +1,3 @@
-import { Request } from 'express';
 import { AppError } from '../errors/AppError';
 
 export function BadRequest(message?: string): AppError
@@ -13,5 +12,3 @@ export function InternalServerError(message?: string, isOperational?: boolean): 
 export function NotImplemented(message?: string): AppError
 export function ServiceUnavailable(message?: string): AppError
 export function BadGateway(message?: string): AppError
-
-export function mapErrorNameToPreset(err: any, req?: Request): AppError

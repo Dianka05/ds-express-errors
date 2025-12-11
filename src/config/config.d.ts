@@ -6,11 +6,19 @@ export interface ConfigOptions {
     isDev: boolean
 }
 
+export interface Logger {
+    error(message: any, ...args: any[]): void
+    warn(message: any, ...args: any[]): void
+    info(message: any, ...args: any[]): void
+    debug(message: any, ...args: any[]): void
+} 
+
 export interface ErrorMapper {
     (err: AppError | Error, req: Request): AppError | Error | undefined | null;
 }
 
 export interface ErrorConfig {
+    customLogger?: Logger | null
     customMappers: ErrorMapper[]
     devEnvironments: string[]
     formatError: (err: AppError | Error, options: ConfigOptions) => any
