@@ -21,7 +21,8 @@ const checkLoggerExist = () => {
     const supportedLoggerLevels = [
         'error',
         'warn',
-        'info'
+        'info',
+        'debug'
     ]
 
     for (const loggerType of supportedLoggerLevels) {
