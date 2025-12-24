@@ -36,7 +36,7 @@ const gracefulHttpClose = (server) => {
       }
 
       const forceClose = () => {
-        console.warn('Force closing server')
+        logWarning('Force closing server')
         done()
       }
 

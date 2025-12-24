@@ -118,33 +118,36 @@ const { initGlobalHandlers } = require('ds-express-errors');
 initGlobalHandlers();
 ```
 
-**Advanced Usage (Custom Crash Logic):**
-UYou can provide an `onCrash` callback to perform cleanup tasks (e.g., closing DB connections, sending alerts) before the process exits.
+## Graceful Shutdown & Global Handlers (v1.5.0)
 
-**New in v1.3.0:**
-- The callback receives the `error` object that caused the crash.
-- Supports `async/await`. The library waits for your promise to resolve (up to 10s) before exiting.
-- **No need to call `process.exit(1)` manually** — the library does it for you automatically after your callback finishes.
+DS Express Errors provides a robust way to handle application crashes and termination signals (SIGINT, SIGTERM). It ensures your server stops accepting new connections and finishes active requests before exiting.
+
+### `initGlobalHandlers(options)`
+
+| Option | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `closeServer` | `Function` | `undefined` | Async function to close your HTTP server. |
+| `onShutdown` | `Function` | `undefined` | Cleanup logic (e.g., disconnect DB) during normal exit. |
+| `onCrash` | `Function` | `undefined` | Cleanup logic during `uncaughtException` or `unhandledRejection`. |
+| `exitOnUnhandledRejection` | `Boolean` | `true` | Exit process after rejection. |
+| `exitOnUncaughtException` | `Boolean` | `true` | Exit process after exception. |
+
+### `gracefulHttpClose(server)`
+A helper that wraps `server.close()` into a Promise with support for an abort signal.
+
+### Example usage
 
 ```javascript
-const { initGlobalHandlers } = require('ds-express-errors');
+const { initGlobalHandlers, gracefulHttpClose } = require('ds-express-errors');
 
 initGlobalHandlers({
-  // Optional: Prevent exit on unhandledRejection (default: true)
-  exitOnUnhandledRejection: true,
-
-  // Async callback with error access
-  onCrash: async (err) => {
-    console.error('CRASH DETECTED:', err.message); // Access the error!
-
-    // Send alert to Sentry/Telegram
-    await sendAlertToAdmin(err);
-
-    // Close resources
-    await db.disconnect();
-    console.log('Cleanup finished.');
-
-    // The library will automatically execute process.exit(1) after this function
+  closeServer: gracefulHttpClose(server), // Gracefully close server
+  onShutdown: async (signal) => {
+    console.log('Cleaning up...');
+    await mongoose.disconnect(); // Close DB connections
+  },
+  onCrash: async (err, signal) => {
+    await sendAlertToAdmin(err); // Notify dev team about crash
   }
 });
 ```
@@ -240,6 +243,7 @@ const logger = winston.createLogger({
 setConfig({
     customLogger: logger
 });
+```
 
 **Default Response Format**
 
