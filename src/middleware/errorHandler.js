@@ -74,7 +74,7 @@ function initGlobalHandlers(options = {}) {
         }
     }
 
-    const timeout = async (cleanupFn, ms = 10) => {
+    const timeout = async (cleanupFn, ms = 10000) => {
         const controller = new AbortController()
         const { signal } = controller
         let finished = false
