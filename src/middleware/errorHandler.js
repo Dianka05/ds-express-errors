@@ -17,7 +17,8 @@ function defaultErrorAnswer(err, req, res) {
     const isDev = checkIsDev()
     const options = {req, isDev}
     const resBody = config.formatError(err, options)
-    res.status(err.statusCode).json(resBody)
+    const status = typeof err.statusCode === 'number' ? err.statusCode : 500
+    res.status(status).json(resBody)
 }
 
 const gracefulHttpClose = (server) => {
