@@ -55,7 +55,7 @@ describe('Graceful shutdown', () => {
 
         process.emit('SIGTERM');
 
-        await jest.advanceTimersByTimeAsync(100);
+        await jest.advanceTimersByTimeAsync(10000);
 
         const [signal] = closeServer.mock.calls[0];
         expect(signal.aborted).toBe(true);
@@ -121,6 +121,42 @@ describe('Graceful shutdown', () => {
         await jest.advanceTimersByTimeAsync(100);
 
         expect(onCrash).toHaveBeenCalledWith(error, expect.any(AbortSignal));
+        expect(exitMock).toHaveBeenCalledWith(1);
+    });
+
+    test('should exit 1 even if onCrash itself fails', async () => {
+        const onCrash = jest.fn().mockRejectedValue(new Error('onCrash failed'));
+        initGlobalHandlers({ onCrash });
+
+        process.emit('unhandledRejection', new Error('initial error'));
+
+        await jest.advanceTimersByTimeAsync(100);
+
+        expect(exitMock).toHaveBeenCalledWith(1);
+    });
+
+    test('should exit 1 and abort signal if closeServer hangs', async () => {
+        const closeServer = jest.fn(() => new Promise(() => {}));
+        initGlobalHandlers({ closeServer });
+
+        process.emit('SIGTERM');
+
+        await jest.advanceTimersByTimeAsync(10000);
+
+        const [signal] = closeServer.mock.calls[0];
+        expect(signal.aborted).toBe(true);
+        expect(exitMock).toHaveBeenCalledWith(1); 
+    });
+    test('should handle multiple failures in parallel shutdown', async () => {
+        const closeServer = jest.fn().mockRejectedValue(new Error('Server fail'));
+        const onShutdown = jest.fn().mockRejectedValue(new Error('DB fail'));
+        
+        initGlobalHandlers({ closeServer, onShutdown });
+
+        process.emit('SIGTERM');
+
+        await jest.advanceTimersByTimeAsync(100);
+
         expect(exitMock).toHaveBeenCalledWith(1);
     });
 });
