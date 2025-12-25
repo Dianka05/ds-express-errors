@@ -1,9 +1,7 @@
 const { config, checkIsDev } = require('../config/config')
-const HttpStatus = require('../constants/httpStatus')
 const AppError = require('../errors/AppError')
 const { logError, logWarning } = require('../logger/logger')
 const { mapErrorNameToPreset } = require('../presets/errorMapper')
-const { safeStringify } = require('../utils/safeStringify')
 
 function errorHandler(err, req, res, next) {
     if (err instanceof AppError) {
@@ -81,7 +79,7 @@ function initGlobalHandlers(options = {}) {
 
         try {
             await Promise.race([
-                cleanupFn(signal).then(() => finished = true),
+                Promise.resolve(cleanupFn(signal).then(() => finished = true)),
                 new Promise((_, reject) => 
                     setTimeout(() => {
                         controller.abort()
@@ -102,12 +100,7 @@ function initGlobalHandlers(options = {}) {
 
     const handleCrash = async (error) => {
         if (onCrash && typeof onCrash === 'function') {
-            try {
-                await timeout((signal) => onCrash(error, signal))
-
-            } catch (err) {
-                logError(err);
-            }
+            await timeout((signal) => onCrash(error, signal))
         }
     }
 
