@@ -20,6 +20,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch all tests
+        run: |
+          git fetch origin tests
+          git checkout origin/tests -- tests
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
