@@ -5,9 +5,9 @@ on:
     branches: [master]
 
 permissions:
-  contents: write      
-  id-token: write     
-  issues: write        
+  contents: write
+  id-token: write
+  issues: write
   pull-requests: write
 
 jobs:
@@ -24,14 +24,18 @@ jobs:
         run: |
           git fetch origin tests
           git checkout origin/tests -- tests
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24  
           registry-url: https://registry.npmjs.org/
 
       - name: Install deps
         run: npm ci
+
+      - name: Install Jest
+        run: npm install --save-dev jest 
 
       - name: Run tests
         run: npm test
