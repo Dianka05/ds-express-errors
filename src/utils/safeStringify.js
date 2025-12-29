@@ -6,4 +6,4 @@ const safeStringify = (obj) => {
     }
 }
 
-module.exports = {safeStringify}
+module.exports = { safeStringify }
