@@ -5,3 +5,4 @@ node_modules
 examples
 tests
 .env
+.github
