@@ -41,4 +41,4 @@ const checkIsDebug = () => {
     return process.env.DEBUG === "true"
 }
 
-module.exports = {config, setConfig, checkIsDev, checkIsDebug, checkLoggerExist}
+module.exports = { config, setConfig, checkIsDev, checkIsDebug, checkLoggerExist }
