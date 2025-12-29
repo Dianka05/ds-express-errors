@@ -132,6 +132,7 @@ DS Express Errors provides a robust way to handle application crashes and termin
 | `onCrash` | `Function` | `undefined` | Cleanup logic during `uncaughtException` or `unhandledRejection`. |
 | `exitOnUnhandledRejection` | `Boolean` | `true` | Exit process after rejection. |
 | `exitOnUncaughtException` | `Boolean` | `true` | Exit process after exception. |
+| `maxTimeout` | `number` | `10000` | awaited with a N-second timeout. The library calls process.exit(1) after it completes, so you no longer need to exit manually. |
 
 ### `gracefulHttpClose(server)`
 A helper that wraps `server.close()` into a Promise with support for an abort signal.
@@ -296,6 +297,22 @@ let config = {
 - **JS Native:** `ReferenceError`, `TypeError` → mapped to `500`. `SyntaxError` is handled (400 for bad JSON body, 500 for code errors).
 
 ---
+## Supported Prisma Error Codes:
+| Error Code | Dev Message                   | Prod Message          | HTTP Status |
+| ---------- | ----------------------------- | --------------------- | ----------- |
+| **P2000**  | Value too long for column: ...     | Invalid input         | 400         |
+| **P2001**  | Record does not exist: ...         | Resource not found    | 404         |
+| **P2002**  | Unique constraint failed: ...      | Conflict              | 409         |
+| **P2003**  | Foreign key constraint failed: ... | Invalid reference     | 400         |
+| **P2014**  | Required relation violation: ...   | Invalid relation      | 400         |
+| **P2015**  | Related record not found: ...      | Resource not found    | 404         |
+| **P2021**  | Table does not exist: ...          | Internal server error | 500         |
+| **P2022**  | Column does not exist: ...         | Internal server error | 500         |
+| **P2025**  | Record not found: ...              | Resource not found    | 404         |
+| **P1001**  | Cannot reach database: ...         | Service unavailable   | 503         |
+| **P1002**  | Database timeout: ...              | Service unavailable   | 503         |
+| **P1003**  | Database does not exist: ...       | Internal server error | 500         |
+
 
 ## 📝 Example Client Response
 
