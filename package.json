@@ -15,10 +15,10 @@
   "types": "index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dianka05/ds-express-errors.git"
+    "url": "git+https://github.com/Dianka05/ds-express-errors.git"
   },
   "bugs": {
-    "url": "https://github.com/dianka05/ds-express-errors/issues"
+    "url": "https://github.com/Dianka05/ds-express-errors/issues"
   },
   "homepage": "https://ds-express-errors.dev",
   "keywords": [
