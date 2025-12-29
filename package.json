@@ -9,6 +9,9 @@
       "require": "./index.js"
     }
   },
+  "scripts": {
+    "test": "jest --verbose"
+  },
   "types": "index.d.ts",
   "repository": {
     "type": "git",
@@ -59,5 +62,8 @@
     "@semantic-release/npm": "^13.1.3",
     "@semantic-release/release-notes-generator": "^14.1.0",
     "semantic-release": "^25.0.2"
+  },
+  "dependencies": {
+    "jest": "^30.2.0"
   }
 }
