@@ -1,7 +1,9 @@
 const { config, checkIsDev } = require('../config/config')
+const HttpStatus = require('../constants/httpStatus')
 const AppError = require('../errors/AppError')
 const { logError, logWarning } = require('../logger/logger')
 const { mapErrorNameToPreset } = require('../presets/errorMapper')
+const { safeStringify } = require('../utils/safeStringify')
 
 function errorHandler(err, req, res, next) {
     if (err instanceof AppError) {
@@ -17,8 +19,7 @@ function defaultErrorAnswer(err, req, res) {
     const isDev = checkIsDev()
     const options = {req, isDev}
     const resBody = config.formatError(err, options)
-    const status = typeof err.statusCode === 'number' ? err.statusCode : 500
-    res.status(status).json(resBody)
+    res.status(err.statusCode).json(resBody)
 }
 
 const gracefulHttpClose = (server) => {
@@ -53,7 +54,8 @@ function initGlobalHandlers(options = {}) {
         exitOnUncaughtException = true, 
         onCrash, 
         onShutdown,
-        closeServer 
+        closeServer,
+        maxTimeout = 10000
     } = options
 
     let shuttingDown = false
@@ -73,14 +75,14 @@ function initGlobalHandlers(options = {}) {
         }
     }
 
-    const timeout = async (cleanupFn, ms = 10000) => {
+    const timeout = async (cleanupFn, ms = maxTimeout) => {
         const controller = new AbortController()
         const { signal } = controller
         let finished = false
 
         try {
             await Promise.race([
-                Promise.resolve(cleanupFn(signal).then(() => finished = true)),
+                cleanupFn(signal).then(() => finished = true),
                 new Promise((_, reject) => 
                     setTimeout(() => {
                         controller.abort()
@@ -101,7 +103,12 @@ function initGlobalHandlers(options = {}) {
 
     const handleCrash = async (error) => {
         if (onCrash && typeof onCrash === 'function') {
-            await timeout((signal) => onCrash(error, signal))
+            try {
+                await timeout((signal) => onCrash(error, signal))
+
+            } catch (err) {
+                logError(err);
+            }
         }
     }
 
