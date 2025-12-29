@@ -9,6 +9,9 @@
       "require": "./index.js"
     }
   },
+  "scripts": {
+    "test": "jest --verbose"
+  },
   "types": "index.d.ts",
   "repository": {
     "type": "git",
