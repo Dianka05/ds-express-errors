@@ -309,55 +309,198 @@ describe('DS Express Errors Library', () => {
             });
         })
 
-        describe('Prisma Errors Handling', () => {
-            test('should map Prisma Foreign Key P2003', () => {
-                const prismaError = {
-                    code: "P2003",
-                    clientVersion: "5.0.0",
-                    message: "Foreign key constraint failed",
-                    meta: {
-                        field_name: "userId"
-                    }
-                }
-                
-                errorHandler(prismaError, req, res, next);
+        describe('Prisma Error Handler', () => {
 
-                expect(res.status).toHaveBeenCalledWith(400);
+            test('should map Prisma P2000 Error', () => {
+                const prismaError = {
+                    code: "P2000",
+                    clientVersion: "5.0.0",
+                    message: "Value too long for column: `name`",
+                    meta: { target: "name" }
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(400)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('[P2003]: Field Name: userId; [MESSAGE] Foreign key constraint failed')
-                }));
-            });
-            test('should map Prisma Error P2002', () => {
+                    message: expect.stringContaining('Value too long for column: Value too long for column: `name`')
+                }))
+            })
+
+            test('should map Prisma P2001 Error', () => {
+                const prismaError = {
+                    code: "P2001",
+                    clientVersion: "5.0.0",
+                    message: "Record does not exist",
+                    meta: { target: "User" }
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(404)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Record does not exist: target: User')
+                }))
+            })
+
+            test('should map Prisma P2002 Error', () => {
                 const prismaError = {
                     code: "P2002",
                     clientVersion: "5.0.0",
                     message: "Unique constraint failed on the fields: (`email`, `age`)",
-                    meta: {
-                        target: ["email", "age"]
-                    }
+                    meta: { target: ["email", "age"] }
                 }
-                
-                errorHandler(prismaError, req, res, next);
 
-                expect(res.status).toHaveBeenCalledWith(400);
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(409)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('[P2002]: Target: [email; age]; [MESSAGE] Unique constraint failed on the fields: (`email`, `age`)')
-                }));
-            });
-            test('should map Prisma Error', () => {
+                    message: expect.stringContaining('Unique constraint failed: Target: [email; age]')
+                }))
+            })
+
+            test('should map Prisma P2003 Error', () => {
                 const prismaError = {
+                    code: "P2003",
                     clientVersion: "5.0.0",
-                    message: "Some error",
+                    message: "Foreign key constraint failed",
+                    meta: { field_name: "userId" }
                 }
-                
-                errorHandler(prismaError, req, res, next);
 
-                expect(res.status).toHaveBeenCalledWith(400);
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(400)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('Unknown Prisma error detail; [MESSAGE] Some error')
-                }));
-            });
+                    message: expect.stringContaining('Foreign key constraint failed: Field Name: userId')
+                }))
+            })
+
+            test('should map Prisma P2014 Error', () => {
+                const prismaError = {
+                    code: "P2014",
+                    clientVersion: "5.0.0",
+                    message: "Required relation violation",
+                    meta: { relation: "posts" }
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(400)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Required relation violation: relation: posts')
+                }))
+            })
+
+            test('should map Prisma P2015 Error', () => {
+                const prismaError = {
+                    code: "P2015",
+                    clientVersion: "5.0.0",
+                    message: "Related record not found",
+                    meta: { relation: "profile" }
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(404)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Related record not found: relation: profile')
+                }))
+            })
+
+            test('should map Prisma P2021 Error', () => {
+                const prismaError = {
+                    code: "P2021",
+                    clientVersion: "5.7.0",
+                    message: "The table `User` does not exist in the current database.",
+                    meta: { table: "User" }
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(500)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Table does not exist: The table `User` does not exist in the current database.')
+                }))
+            })
+
+            test('should map Prisma P2022 Error', () => {
+                const prismaError = {
+                    code: "P2022",
+                    clientVersion: "5.7.0",
+                    message: "The column `age` does not exist in the current database.",
+                    meta: { column: "age" }
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(500)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Column does not exist: The column `age` does not exist in the current database.')
+                }))
+            })
+
+            test('should map Prisma P2025 Error', () => {
+                const prismaError = {
+                    code: "P2025",
+                    clientVersion: "5.7.0",
+                    message: "An operation failed because it depends on one or more records that were required but not found.",
+                    meta: { cause: "Record to update not found." }
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(404)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Record not found: An operation failed because it depends on one or more records that were required but not found.')
+                }))
+            })
+
+            test('should map Prisma P1001 Error', () => {
+                const prismaError = {
+                    code: "P1001",
+                    clientVersion: "5.7.0",
+                    message: "Cannot reach database"
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(503)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Cannot reach database')
+                }))
+            })
+
+            test('should map Prisma P1002 Error', () => {
+                const prismaError = {
+                    code: "P1002",
+                    clientVersion: "5.7.0",
+                    message: "Database timeout"
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(503)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Database timeout')
+                }))
+            })
+
+            test('should map Prisma P1003 Error', () => {
+                const prismaError = {
+                    code: "P1003",
+                    clientVersion: "5.7.0",
+                    message: "Database does not exist"
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(500)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Database does not exist')
+                }))
+            })
         })
+
 
         describe('Syntax Error', () => {
 
