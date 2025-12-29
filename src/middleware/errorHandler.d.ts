@@ -4,7 +4,10 @@ import { AppError } from "../errors/AppError"
 export interface GlobalHandlerOptions {
     exitOnUnhandledRejection?: boolean
     exitOnUncaughtException?: boolean
-    onCrash?: () => void
+    onCrash?: (error: any, signal?: AbortSignal) => Promise<void> | void
+    onShutdown?: (signal?: AbortSignal) => Promise<void> | void
+    closeServer?: (signal?: AbortSignal) => Promise<void> | void
+    maxTimeout?: number
 }
 
 export function gracefulHttpClose(server: any): (signal?: AbortSignal) => Promise<void>

@@ -9,9 +9,9 @@
       "require": "./index.js"
     }
   },
-  "types": "index.d.ts",  
+  "types": "index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",
@@ -55,5 +55,13 @@
     "index.d.ts",
     "LICENSE",
     "README.md"
-  ]
+  ],
+  "devDependencies": {
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/github": "^12.0.2",
+    "@semantic-release/npm": "^13.1.3",
+    "@semantic-release/release-notes-generator": "^14.1.0",
+    "semantic-release": "^25.0.2",
+    "jest": "^30.2.0"
+  }
 }

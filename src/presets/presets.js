@@ -77,11 +77,11 @@ const presetErrors = {
     'NotFound': NotFound,
     'NotFoundError': NotFound,
     
-    // 409 (NEW)
+    // 409 (uused)
     'Conflict': Conflict,
     'ConflictError': Conflict,
     
-    // 429 (NEW)
+    // 429
     'TooManyRequests': TooManyRequests,
     'TooManyRequestsError': TooManyRequests,
     'RateLimitError': TooManyRequests,
