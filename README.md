@@ -1,4 +1,5 @@
-# 📦 DS Express Errors
+# 📦 DS Express Errors ![NPM Downloads](https://img.shields.io/npm/d18m/ds-express-errors?style=for-the-badge&labelColor=%232196f3&color=gray)
+
 
 **DS Express Errors** is library for standardizing error handling in Node.js applications built with Express.  
 It provides ready-to-use error classes (HTTP Presets), a centralized error handler (middleware), automatic: database error mapping (Mongoose, Prisma, Sequelize), validation error mapping (Zod, Joi), JWT and built-in simple logging or custom loggers (Winston/Pino).
