@@ -23,6 +23,10 @@ function NotFound(message = "Not Found") {
 function Conflict(message = "Conflict") {
     return new AppError(message, HttpStatus.CONFLICT, true)
 }
+// nww
+function UnprocessableContent(message = "Unprocessable Content") {
+    return new AppError(message, HttpStatus.UNPROCESSABLE_CONTENT, true)
+}
 
 function TooManyRequests(message = "Too Many Requests") {
     return new AppError(message, HttpStatus.TOO_MANY_REQUESTS, true)
@@ -106,6 +110,7 @@ module.exports = {
     Forbidden,
     NotFound,
     Conflict,
+    UnprocessableContent,
     TooManyRequests,
     InternalServerError,
     NotImplemented,
