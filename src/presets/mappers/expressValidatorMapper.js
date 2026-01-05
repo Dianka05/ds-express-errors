@@ -4,7 +4,6 @@ const { UnprocessableContent, BadRequest } = require("../presets")
 const expressValidatorMapper = (err) => {
     const isDevEnvironment = checkIsDev()
 
-    
     const { type, value, msg, message, nestedErrors } = err
     
     const isFieldValidationError = type === types.field
@@ -26,9 +25,6 @@ const expressValidatorMapper = (err) => {
     if (isUnknownFieldsError) {
         return BadRequest(isDevEnvironment ? outputMessage + `: ${_nestedErrors}` : 'Invalid input')
     }
-
-    return BadRequest(isDevEnvironment ? outputMessage : 'Invalid input')
-
 }
 
 const types = {

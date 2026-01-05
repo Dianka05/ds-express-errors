@@ -1,5 +1,3 @@
-const { logWarning } = require("../logger/logger")
-
 let config = {
     customMappers: [],
     customLogger: null,
@@ -16,16 +14,16 @@ let config = {
 }
 const setConfig = (newOptions) => {
     if (!newOptions || typeof newOptions !== 'object') {
-        logWarning('setConfig expected an object')
+        throw new Error('setConfig expected an object')
     }
 
-    if (newOptions.customMappers || !Array.isArray(newOptions.customMappers)) {
-        logWarning('customMappers must be an array')
+    if (newOptions.customMappers && !Array.isArray(newOptions.customMappers)) {
+        throw new Error('customMappers must be an array')
     }
 
 
-    if (newOptions.devEnvironments || !Array.isArray(newOptions.devEnvironments)) {
-        logWarning('devEnvironments must be an array')
+    if (newOptions.devEnvironments && !Array.isArray(newOptions.devEnvironments)) {
+        throw new Error('devEnvironments must be an array')
     }
 
     Object.assign(config, newOptions)
