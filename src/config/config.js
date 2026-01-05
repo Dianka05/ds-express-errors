@@ -1,3 +1,5 @@
+const ConfigError = require("../errors/internal/ConfigError")
+
 let config = {
     customMappers: [],
     customLogger: null,
@@ -14,16 +16,16 @@ let config = {
 }
 const setConfig = (newOptions) => {
     if (!newOptions || typeof newOptions !== 'object') {
-        throw new Error('setConfig expected an object')
+        throw new ConfigError('setConfig expected an object', setConfig)
     }
 
     if (newOptions.customMappers && !Array.isArray(newOptions.customMappers)) {
-        throw new Error('customMappers must be an array')
+        throw new ConfigError('customMappers must be an array', setConfig)
     }
 
 
     if (newOptions.devEnvironments && !Array.isArray(newOptions.devEnvironments)) {
-        throw new Error('devEnvironments must be an array')
+        throw new ConfigError('devEnvironments must be an array', setConfig)
     }
 
     Object.assign(config, newOptions)

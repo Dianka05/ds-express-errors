@@ -168,6 +168,7 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 | `Errors.Forbidden(message)` | 403 | Forbidden |
 | `Errors.NotFound(message)` | 404 | Not Found |
 | `Errors.Conflict(message)` | 409 | Conflict |
+| `Errors.UnprocessableContent(message)` | 422 | Unprocessable Content |
 | `Errors.TooManyRequests(message)` | 429 | Too Many Requests |
 | `Errors.InternalServerError(message)` | 500 | Internal Server Error |
 | `Errors.NotImplemented(message)` | 501 | Not Implemented |
@@ -290,6 +291,7 @@ let config = {
 **Supported mappings:**
 
 - **JWT:** `JsonWebTokenError`, `TokenExpiredError`, `NotBeforeError` → mapped to `401 Unauthorized`
+- **express-validator:** (New in v1.7.0+) `FieldValidationError`, `GroupedAlternativeValidationError`, `AlternativeValidationError` → mapped to `422 Unprocessable Content` and `UnknownFieldsError` → mapped to `400 Bad Request`
 - **Validation Libraries:** `ZodError` (Zod), `ValidationError` (Joi) — automatically formatted into readable messages.
 - **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`, `MongoServerError` is handled (400 for bad JSON body, 500 for code errors).
 - **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`, `PrismaClientRustPanicError`, `PrismaClientInitializationError`, `PrismaClientValidationError`
