@@ -501,6 +501,78 @@ describe('DS Express Errors Library', () => {
             })
         })
 
+        describe('Express Validator Error Handler', () => {
+            test('should map Express-Validator `FieldValidationError` Error', () => {
+                const expressValidatorError = {
+                    type: "field",
+                    location: "body",
+                    path: "email",
+                    value: "invalid-email",
+                    msg: "Invalid value"
+                }
+
+                errorHandler(expressValidatorError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(422)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Invalid value: invalid-email')
+                }))
+            })
+
+            test('should map Express-Validator `AlternativeValidationError` Error', () => {
+                const expressValidatorError = {
+                    type: "alternative",
+                    msg: "Invalid value",
+                    nestedErrors: [
+                        { type: "field", path: "phone", msg: "Invalid value" },
+                        { type: "field", path: "email", msg: "Invalid value" }
+                    ]
+                }
+
+                errorHandler(expressValidatorError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(422)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Invalid value: phone; email')
+                }))
+            })
+
+            test('should map Express-Validator `GroupedAlternativeValidationError` Error', () => {
+                const expressValidatorError = {
+                    type: "alternative_grouped",
+                    msg: "Invalid value",
+                    nestedErrors: [
+                        { type: "field", path: "phone" },
+                        { type: "field", path: "email" }
+                    ]
+                }
+
+                errorHandler(expressValidatorError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(422)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Invalid value: phone; email')
+                }))
+            })
+
+            test('should map Express-Validator `UnknownFieldsError` Error', () => {
+                const expressValidatorError = {
+                    type: "unknown_fields",
+                    msg: "Unknown field(s)",
+                    nestedErrors: [
+                        { path: "extraField", location: "body", value: "someValue" }
+                    ]   
+                }
+
+                errorHandler(expressValidatorError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(400)
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Unknown field(s): path: extraField; location: body; value: someValue')
+                }))
+            })
+        })
+
 
         describe('Syntax Error', () => {
 
