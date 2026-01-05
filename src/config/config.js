@@ -13,6 +13,19 @@ let config = {
     })
 }
 const setConfig = (newOptions) => {
+    if (!newOptions || typeof newOptions !== 'object') {
+        throw new Error('setConfig expected an object')
+    }
+
+    if (newOptions.customMappers && !Array.isArray(newOptions.customMappers)) {
+        throw new Error('customMappers must be an array')
+    }
+
+
+    if (newOptions.devEnvironments && !Array.isArray(newOptions.devEnvironments)) {
+        throw new Error('devEnvironments must be an array')
+    }
+
     Object.assign(config, newOptions)
 }
 
@@ -26,7 +39,7 @@ const checkLoggerExist = () => {
     ]
 
     for (const loggerType of supportedLoggerLevels) {
-        if (!(loggerType in config.customLogger) && typeof config.customLogger[loggerType] !== 'function') {
+        if (!(loggerType in config.customLogger) || typeof config.customLogger[loggerType] !== 'function') {
             return false
         }
     }

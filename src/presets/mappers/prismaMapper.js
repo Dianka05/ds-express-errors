@@ -6,7 +6,9 @@ const { BadRequest, Conflict, NotFound, ServiceUnavailable, InternalServerError 
 
 const prismaMapper = (err, req) => {
     const isDevEnvironment = checkIsDev()
-    const isPrisma = err.clientVersion && typeof err.clientVersion === 'string'
+    const isPrisma = (err.clientVersion && typeof err.clientVersion === 'string')
+      || (err?.name && err?.name.startsWith('Prisma'))
+      || (err.code && /^P\d{4}$/.test(err.code))
 
     if(isPrisma) {
         const {target, field_name } = err.meta || {}
