@@ -3,6 +3,7 @@ const { checkIsDev } = require("../config/config")
 const { logWarning, logDebug } = require("../logger/logger")
 const { safeStringify } = require("../utils/safeStringify")
 const { customMapper } = require("./mappers/customMapper")
+const { expressValidatorMapper } = require("./mappers/expressValidatorMapper")
 const { joiMapper } = require("./mappers/joiMapper")
 const { mongooseMapper } = require("./mappers/mongooseMapper")
 const { nameMapper } = require("./mappers/nameMapper")
@@ -18,7 +19,8 @@ const mappers = [
     mongooseMapper, 
     prismaMapper, 
     sequelizeMapper, 
-    nameMapper
+    expressValidatorMapper,
+    nameMapper,
 ]
 
 const mapErrorNameToPreset = (err, req) => {
@@ -42,7 +44,7 @@ const mapErrorNameToPreset = (err, req) => {
         return presetError(`${name}: ${message}`)
     }
     if (isDevEnvironment || checkIsDebug()) {
-        logDebug(`[Unknown error mapping]: => Name: ${name}, | Code: ${code}, | Message: ${message}`, req)
+        logDebug(`[Unknown error mapping]: => Name: ${name}, ${code ? `| Code: ${code}`: ''}, | Message: ${message}`, req)
     }
     
     return InternalServerError(isDevEnvironment ? message : "An unexpected error occurred.")

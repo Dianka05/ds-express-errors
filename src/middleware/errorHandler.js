@@ -86,7 +86,7 @@ function initGlobalHandlers(options = {}) {
                 new Promise((_, reject) => 
                     setTimeout(() => {
                         controller.abort()
-                        reject(new Error('Shutdown timed out (10s limit)'))
+                        reject(new Error('Shutdown timed out'))
                     }, ms)
                 )
             ]);
