@@ -23,4 +23,4 @@ Feature ideas and questions are welcome in GitHub Discussions.
 
 ---
 
-Maintainer: project author
+Maintainer: Diana Stoyka
