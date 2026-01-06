@@ -23,6 +23,8 @@ const setConfig = (newOptions) => {
 
     if (newOptions.customMappers && !Array.isArray(newOptions.customMappers)) {
         throw new ConfigError('customMappers must be an array', setConfig)
+    } else if (newOptions.customMappers && newOptions.customMappers.some(fn => fn.constructor.name === 'AsyncFunction' )) {
+        throw new ConfigError('customMappers must contain only sync functions', setConfig)
     }
 
     if (newOptions.devEnvironments && !Array.isArray(newOptions.devEnvironments)) {
