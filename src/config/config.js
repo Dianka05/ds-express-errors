@@ -15,17 +15,32 @@ let config = {
     })
 }
 const setConfig = (newOptions) => {
-    if (!newOptions || typeof newOptions !== 'object') {
+    if (!newOptions || typeof newOptions !== 'object' || Array.isArray(newOptions)) {
         throw new ConfigError('setConfig expected an object', setConfig)
+    } else if (newOptions && Object.keys(newOptions).length === 0) {
+        throw new ConfigError('setConfig should not be null if inicializated', setConfig)
     }
 
     if (newOptions.customMappers && !Array.isArray(newOptions.customMappers)) {
         throw new ConfigError('customMappers must be an array', setConfig)
     }
 
-
     if (newOptions.devEnvironments && !Array.isArray(newOptions.devEnvironments)) {
         throw new ConfigError('devEnvironments must be an array', setConfig)
+    }
+
+    if (newOptions.formatError && 
+        typeof newOptions.formatError !== 'function' 
+        || newOptions.formatError === null 
+        || 'formatError' in newOptions && newOptions.formatError === undefined) 
+    {
+        throw new ConfigError('formatError must be an function', setConfig)
+    }
+
+    if (newOptions.logger && Array.isArray(newOptions.logger)) {
+        throw new ConfigError('logger must be an object', setConfig)
+    } else if (newOptions.logger && Object.keys(newOptions.logger).length === 0) {
+        throw new ConfigError('logger should not be null or empty if inicializated', setConfig)
     }
 
     Object.assign(config, newOptions)
