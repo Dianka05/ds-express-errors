@@ -21,7 +21,7 @@
     "url": "https://github.com/Dianka05/ds-express-errors/issues"
   },
   "homepage": "https://ds-express-errors.dev",
-   "keywords": [
+  "keywords": [
     "express",
     "express-middleware",
     "errors",
