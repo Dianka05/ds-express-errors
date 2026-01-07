@@ -196,6 +196,8 @@ Also you can customize dev environment by using `devEnvironments: []`
 
 Use `setConfig` before initializing the error handler middleware.
 
+> **Important:** `customMappers` must be synchronous. Async function or Promise are not supported and will be ignored.
+
 ```javascript
 const { setConfig, errorHandler } = require('ds-express-errors');
 const logger = require('./utils/logger'); // Your Winston/Pino logger

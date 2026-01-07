@@ -1,17 +1,15 @@
-const { config } = require("../../config/config");
-const { logWarning } = require("../../logger/logger");
+const { config } = require("../../config/config")
+const { logWarning } = require("../../logger/logger")
 
-const customMapper = async (err, req) => {
+const customMapper = (err, req) => {
     if (config.customMappers && config.customMappers.length > 0) {
         for (const mapper of config.customMappers) {
             try {
-                const mapperFunc = mapper(err, req);
+                const mapperFunc = mapper(err, req)
 
                 if (mapperFunc instanceof Promise) {
-                    const awaited = await mapperFunc
-                    if (awaited) {
-                        return awaited
-                    }
+                    logWarning(`Custom mapper returned a Promise - async not supported!`, req)
+                    break
                 } else if (mapperFunc) return mapperFunc
             } catch (error) {
                 logWarning(`Custom mapper failed: ${error}`)
