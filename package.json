@@ -1,6 +1,6 @@
 {
   "name": "ds-express-errors",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Centralized typed error management library for ExpressJS with Zod/Joi/JWT/express-validator and DB (Prisma/Mongoose/Sequelize) support & graceful shutdown",
   "main": "index.js",
   "exports": {
@@ -61,6 +61,7 @@
     "@semantic-release/github": "^12.0.2",
     "@semantic-release/npm": "^13.1.3",
     "@semantic-release/release-notes-generator": "^14.1.0",
+    "jest": "^30.2.0",
     "semantic-release": "^25.0.2"
   }
 }
