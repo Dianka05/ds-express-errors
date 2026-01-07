@@ -14,7 +14,7 @@ function logError(error, req) {
         const code = error.code ? `[${error.code}]` : ''
         const name = error.name || ''
 
-        const url = req.originalUrl ? safeUrl(req.originalUrl) : ''
+        const url = req?.originalUrl ? safeUrl(req.originalUrl) : ''
 
         if (checkLoggerExist()) {
             config.customLogger.error(`[${timestamp}] ${req?.method || ''} ${url} \n[Error]: ${code} ${name} \nMessage: ${message} \nStatusCode: ${statusCode} \n${stack ? `Stack: ${stack}` : ''} \nOperational: ${isOperational}\n`)
@@ -41,7 +41,7 @@ function logWarning(rawMessage, req) {
     const timestamp = getTimestamp()
 
     const message = safeMessage(rawMessage)
-    const url = req.originalUrl ? safeUrl(req.originalUrl) : ''
+    const url = req?.originalUrl ? safeUrl(req.originalUrl) : ''
 
 
     if (checkLoggerExist()) {
@@ -56,7 +56,7 @@ function logDebug(rawMessage, req) {
     const timestamp = getTimestamp()
 
     const message = safeMessage(rawMessage)
-    const url = req.originalUrl ? safeUrl(req.originalUrl) : ''
+    const url = req?.originalUrl ? safeUrl(req.originalUrl) : ''
 
     if (checkLoggerExist()) {
         config.customLogger.debug(`[${timestamp}] - [DEBUG]: ${req?.method || ''} ${url} [Message]: ${message}`)
