@@ -1,7 +1,7 @@
 {
   "name": "ds-express-errors",
-  "version": "1.6.0",
-  "description": "Centralized typed error handling library for ExpressJS with Zod/Joi/JWT and DB (Prisma/Mongoose/Sequelize) support & graceful shutdown",
+  "version": "1.7.0",
+  "description": "Centralized typed error management library for ExpressJS with Zod/Joi/JWT/express-validator and DB (Prisma/Mongoose/Sequelize) support & graceful shutdown",
   "main": "index.js",
   "exports": {
     ".": {
@@ -21,7 +21,7 @@
     "url": "https://github.com/Dianka05/ds-express-errors/issues"
   },
   "homepage": "https://ds-express-errors.dev",
-  "keywords": [
+   "keywords": [
     "express",
     "express-middleware",
     "errors",
@@ -32,17 +32,16 @@
     "async",
     "typescript",
     "logger",
-    "zod",
-    "joi",
-    "jwt",
-    "mongoose",
-    "prisma",
-    "sequelize",
-    "orm",
-    "database",
+    "zod support",
+    "express-validator support",
+    "joi support",
+    "jwt support",
+    "mongoose support",
+    "prisma support",
+    "sequelize support",
     "custom loggers",
-    "pino",
-    "winston"
+    "pino support",
+    "winston support"
   ],
   "author": "Diana Stoyka",
   "license": "MIT",
