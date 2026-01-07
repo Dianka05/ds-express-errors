@@ -4,7 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.7.0] – 2026-01-05 (latest)
+## [1.7.1] – 2026-01-07 (latest)
+
+### Changed
+- Improved validation checks for `setConfig`
+- Enhanced environment configuration checks
+
+### Fixed
+- Log injection vulnerability
+- Crash in custom mappers when returning Promises or async functions
+- Missing fallback `statusCode` for `defaultErrorAnswer`
+
+
+---
+
+## [1.7.0] – 2026-01-05
 
 ### Added
 - Express-validator support
