@@ -66,10 +66,12 @@ const checkLoggerExist = () => {
 }
 
 const checkIsDev = () => {
+    if (typeof process === 'undefined' || !process.env) return false
     return config.devEnvironments.includes(process.env.NODE_ENV);
 }
 
 const checkIsDebug = () => {
+    if (typeof process === 'undefined' || !process.env) return false
     return process.env.DEBUG === "true"
 }
 
