@@ -1,7 +1,7 @@
 {
   "name": "ds-express-errors",
-  "version": "1.6.0",
-  "description": "Centralized typed error handling library for ExpressJS with Zod/Joi/JWT and DB (Prisma/Mongoose/Sequelize) support & graceful shutdown",
+  "version": "1.7.0",
+  "description": "Centralized typed error management library for ExpressJS with Zod/Joi/JWT/express-validator and DB (Prisma/Mongoose/Sequelize) support & graceful shutdown",
   "main": "index.js",
   "exports": {
     ".": {
@@ -32,17 +32,16 @@
     "async",
     "typescript",
     "logger",
-    "zod",
-    "joi",
-    "jwt",
-    "mongoose",
-    "prisma",
-    "sequelize",
-    "orm",
-    "database",
+    "zod support",
+    "express-validator support",
+    "joi support",
+    "jwt support",
+    "mongoose support",
+    "prisma support",
+    "sequelize support",
     "custom loggers",
-    "pino",
-    "winston"
+    "pino support",
+    "winston support"
   ],
   "author": "Diana Stoyka",
   "license": "MIT",
@@ -58,6 +57,7 @@
   ],
   "devDependencies": {
     "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.2",
     "@semantic-release/npm": "^13.1.3",
     "@semantic-release/release-notes-generator": "^14.1.0",

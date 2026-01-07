@@ -1,5 +1,6 @@
 # Contributing
 
+<<<<<<< HEAD
 Thank you for your interest in this project.
 
 ## Pull Requests
@@ -24,3 +25,11 @@ Feature ideas and questions are welcome in GitHub Discussions.
 ---
 
 Maintainer: Diana Stoyka
+=======
+## Pull Requests
+
+This library is developed and maintained solely by the author.
+Pull requests are not accepted and will be closed without review.
+
+If you find a bug or have a suggestion, feel free to open an Issue.
+>>>>>>> develop

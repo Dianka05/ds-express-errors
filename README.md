@@ -2,7 +2,7 @@
 
 
 **DS Express Errors** is library for standardizing error handling in Node.js applications built with Express.  
-It provides ready-to-use error classes (HTTP Presets), a centralized error handler (middleware), automatic: database error mapping (Mongoose, Prisma, Sequelize), validation error mapping (Zod, Joi), JWT and built-in simple logging or custom loggers (Winston/Pino).
+It provides ready-to-use error classes (HTTP Presets), a centralized error handler (middleware), automatic: database error mapping (Mongoose, Prisma, Sequelize), validation error mapping (Zod, Joi, express-validator), JWT and built-in simple logging or custom loggers (Winston/Pino).
 
 --- 
 
@@ -196,6 +196,8 @@ Also you can customize dev environment by using `devEnvironments: []`
 
 Use `setConfig` before initializing the error handler middleware.
 
+> **Important:** `customMappers` must be synchronous. Async function or Promise are not supported and will be ignored.
+
 ```javascript
 const { setConfig, errorHandler } = require('ds-express-errors');
 const logger = require('./utils/logger'); // Your Winston/Pino logger
@@ -291,7 +293,7 @@ let config = {
 **Supported mappings:**
 
 - **JWT:** `JsonWebTokenError`, `TokenExpiredError`, `NotBeforeError` → mapped to `401 Unauthorized`
-- **express-validator:** (New in v1.7.0+) `FieldValidationError`, `GroupedAlternativeValidationError`, `AlternativeValidationError` → mapped to `422 Unprocessable Content` and `UnknownFieldsError` → mapped to `400 Bad Request`
+- **express-validator:** (**New in v1.7.0+**) `FieldValidationError`, `GroupedAlternativeValidationError`, `AlternativeValidationError` → mapped to `422 Unprocessable Content` and `UnknownFieldsError` → mapped to `400 Bad Request`
 - **Validation Libraries:** `ZodError` (Zod), `ValidationError` (Joi) — automatically formatted into readable messages.
 - **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`, `MongoServerError` is handled (400 for bad JSON body, 500 for code errors).
 - **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`, `PrismaClientRustPanicError`, `PrismaClientInitializationError`, `PrismaClientValidationError`
