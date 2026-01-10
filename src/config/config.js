@@ -4,6 +4,7 @@ let config = {
     customMappers: [],
     customLogger: null,
     errorClasses: null,
+    needMappers: null,
     devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
@@ -15,6 +16,7 @@ let config = {
          } : {})
     })
 }
+
 const setConfig = (newOptions) => {
     if (!newOptions || typeof newOptions !== 'object' || Array.isArray(newOptions)) {
         throw new ConfigError('setConfig expected an object', setConfig)
@@ -30,6 +32,10 @@ const setConfig = (newOptions) => {
 
     if (newOptions.devEnvironments && !Array.isArray(newOptions.devEnvironments)) {
         throw new ConfigError('devEnvironments must be an array', setConfig)
+    }
+
+    if (newOptions.needMappers && !Array.isArray(newOptions.needMappers)) {
+        throw new ConfigError('needMappers must be an array', setConfig)
     }
 
     if (newOptions.errorClasses && typeof newOptions.errorClasses !== 'object' ) {

@@ -1,3 +1,4 @@
+const { config } = require("../config/config")
 const { checkIsDebug } = require("../config/config")
 const { checkIsDev } = require("../config/config")
 const { logWarning, logDebug } = require("../logger/logger")
@@ -12,18 +13,19 @@ const { sequelizeMapper } = require("./mappers/sequelizeMapper")
 const { zodMapper } = require("./mappers/zodMapper")
 const { presetErrors, InternalServerError } = require("./presets")
 
-const mappers = [
-    customMapper, 
-    zodMapper, 
-    joiMapper, 
-    mongooseMapper, 
-    prismaMapper, 
-    sequelizeMapper, 
-    expressValidatorMapper,
-    nameMapper,
-]
+const allMappers = {
+    custom: customMapper,
+    zod: zodMapper,
+    joi: joiMapper,
+    mongoose: mongooseMapper,
+    prisma: prismaMapper,
+    sequelize: sequelizeMapper,
+    expressValidator: expressValidatorMapper,
+    name: nameMapper
+};
 
 const mapErrorNameToPreset = (err, req) => {
+
     const isDevEnvironment = checkIsDev()
 
     if (!err || typeof err !== 'object') {
@@ -33,6 +35,17 @@ const mapErrorNameToPreset = (err, req) => {
 
     const { name, code, message } = err
 
+    const getActiveMappers = () => {
+        const needMappers = config?.needMappers
+        if (needMappers === null && !Array.isArray(needMappers)) {
+            return Object.values(allMappers)
+        }
+
+        return needMappers.map(n => allMappers[n]).filter(Boolean)
+    }
+
+    const mappers = getActiveMappers()
+    
     for (const mapper of mappers) {
         const mapperFunc = mapper(err, req)
         if (mapperFunc) return mapperFunc
