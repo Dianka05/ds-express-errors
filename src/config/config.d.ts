@@ -6,6 +6,11 @@ export interface ConfigOptions {
     isDev: boolean
 }
 
+export interface ErrorClasses {
+    Zod?: { ZodError: new (...args: any[]) => Error }
+    Joi?: { ValidationError: new (...args: any[]) => Error }
+}
+
 export interface Logger {
     error(message: any, ...args: any[]): void
     warn(message: any, ...args: any[]): void
@@ -20,7 +25,7 @@ export interface ErrorMapper {
 export interface ErrorConfig {
     customLogger?: Logger | null
     customMappers?: ErrorMapper[]
-    errorClasses?: object
+    errorClasses?: ErrorClasses
     devEnvironments?: string[]
     formatError?: (err: AppError | Error, options: ConfigOptions) => any
 }
