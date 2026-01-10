@@ -84,6 +84,9 @@ const presetErrors = {
     // 409 (uused)
     'Conflict': Conflict,
     'ConflictError': Conflict,
+
+    //422
+    'UnprocessableContent': UnprocessableContent,
     
     // 429
     'TooManyRequests': TooManyRequests,
