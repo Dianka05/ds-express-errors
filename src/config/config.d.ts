@@ -27,6 +27,7 @@ export interface ErrorConfig {
     customMappers?: ErrorMapper[]
     errorClasses?: ErrorClasses
     devEnvironments?: string[]
+    needMappers?: string[]
     formatError?: (err: AppError | Error, options: ConfigOptions) => any
 }
 
