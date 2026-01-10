@@ -4,26 +4,44 @@ const { UnprocessableContent, BadRequest } = require("../presets")
 const expressValidatorMapper = (err) => {
     const isDevEnvironment = checkIsDev()
 
-    const { type, value, msg, message, nestedErrors } = err
+    const isExpressValidatorError = err =>
+       err?.errors && Array.isArray(err.errors)
+
+    if (isExpressValidatorError) {
+        const { errors, message } = err
     
-    const isFieldValidationError = type === types.field
-    const isAlternativeValidationError = type === types.alternative
-    const isGroupedAlternativeValidationError = type === types.alternative_grouped
-    const isUnknownFieldsError = type === types.unknown_fields
+        const fError = Array.isArray(errors) ? errors[0] : null
 
-    const outputMessage = msg || message;
+        const {type, value, msg, path, nestedErrors  } = fError || {}
+
+        const isFieldValidationError = isExpressValidatorError && type === types.field
+        const isAlternativeValidationError = isExpressValidatorError && type === types.alternative
+        const isGroupedAlternativeValidationError = isExpressValidatorError && type === types.alternative_grouped
+        const isUnknownFieldsError = isExpressValidatorError && type === types.unknown_fields
+
+        const outputMessage = msg || message
+        
+        let _errors = ''
+
+        if (nestedErrors && nestedErrors.length > 0) {
+                _errors = nestedErrors?.map(nestedError => {
+                    if (isUnknownFieldsError) return `path: ${nestedError[0]?.path}; location: ${nestedError[0]?.location}; value: ${nestedError[0]?.value}`
+                    return `${nestedError[0]?.path}`
+                }).join('; ')
+        } else if (path) {
+            _errors = path
+        } else {
+            _errors = ''
+        }
     
-    const _nestedErrors = nestedErrors?.map((nestedError) => {
-        if (isUnknownFieldsError) return `path: ${nestedError?.path}; location: ${nestedError?.location}; value: ${nestedError?.value}`
-        return `${nestedError?.path}`
-    }).join('; ')
+        if (isFieldValidationError || isAlternativeValidationError || isGroupedAlternativeValidationError) {
+            return UnprocessableContent(isDevEnvironment ? outputMessage + `: ${(_errors || value) || ('')}` : 'Unprocessable Content')
+        }
+    
+        if (isUnknownFieldsError ) {
+            return BadRequest(isDevEnvironment ? outputMessage + `: ${_errors}` : 'Invalid input')
+        }
 
-    if (isFieldValidationError || isAlternativeValidationError || isGroupedAlternativeValidationError) {
-        return UnprocessableContent(isDevEnvironment ? outputMessage + `: ${_nestedErrors || value}` : 'Unprocessable Content')
-    }
-
-    if (isUnknownFieldsError) {
-        return BadRequest(isDevEnvironment ? outputMessage + `: ${_nestedErrors}` : 'Invalid input')
     }
 }
 
