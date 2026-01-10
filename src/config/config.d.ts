@@ -19,9 +19,10 @@ export interface ErrorMapper {
 
 export interface ErrorConfig {
     customLogger?: Logger | null
-    customMappers: ErrorMapper[]
-    devEnvironments: string[]
-    formatError: (err: AppError | Error, options: ConfigOptions) => any
+    customMappers?: ErrorMapper[]
+    errorClasses?: object
+    devEnvironments?: string[]
+    formatError?: (err: AppError | Error, options: ConfigOptions) => any
 }
 
 export function setConfig(options: Partial<ErrorConfig>): void
