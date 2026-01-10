@@ -3,6 +3,7 @@ const ConfigError = require("../errors/internal/ConfigError")
 let config = {
     customMappers: [],
     customLogger: null,
+    errorClasses: null,
     devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
@@ -29,6 +30,10 @@ const setConfig = (newOptions) => {
 
     if (newOptions.devEnvironments && !Array.isArray(newOptions.devEnvironments)) {
         throw new ConfigError('devEnvironments must be an array', setConfig)
+    }
+
+    if (newOptions.errorClasses && typeof newOptions.errorClasses !== 'object' ) {
+        throw new ConfigError('errorClasses must be an object', setConfig)
     }
 
     if (newOptions.formatError && 
