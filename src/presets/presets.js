@@ -51,17 +51,17 @@ function ServiceUnavailable(message = "Service Unavailable") {
 const presetErrors = {
     // 400
     'BadRequest': BadRequest,
-    'ValidationError': BadRequest,
-    'CastError': BadRequest, // Mongoose
-    'DuplicateKeyError': BadRequest, // Mongoose (legacy name usage)
-    'SequelizeUniqueConstraintError': BadRequest, 
-    'SequelizeValidationError': BadRequest,
-    'SequelizeForeignKeyConstraintError': BadRequest,
-    'PrismaClientKnownRequestError': BadRequest,
-    'PrismaClientUnknownRequestError': BadRequest,
-    'PrismaClientRustPanicError': BadRequest,
-    'PrismaClientInitializationError': BadRequest,
-    'PrismaClientValidationError': BadRequest,
+    // 'ValidationError': BadRequest,
+    // 'CastError': BadRequest, // Mongoose
+    // 'DuplicateKeyError': BadRequest, // Mongoose (legacy name usage)
+    // 'SequelizeUniqueConstraintError': BadRequest, 
+    // 'SequelizeValidationError': BadRequest,
+    // 'SequelizeForeignKeyConstraintError': BadRequest,
+    // 'PrismaClientKnownRequestError': BadRequest,
+    // 'PrismaClientUnknownRequestError': BadRequest,
+    // 'PrismaClientRustPanicError': BadRequest,
+    // 'PrismaClientInitializationError': BadRequest,
+    // 'PrismaClientValidationError': BadRequest,
     
     // 401
     'JsonWebTokenError': Unauthorized,
