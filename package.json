@@ -1,6 +1,6 @@
 {
   "name": "ds-express-errors",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "Centralized typed error management library for ExpressJS with Zod/Joi/JWT/express-validator and DB (Prisma/Mongoose/Sequelize) support & graceful shutdown",
   "main": "index.js",
   "exports": {
