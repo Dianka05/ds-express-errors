@@ -323,7 +323,7 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(400)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('Value too long for column: target: name')
+                    message: expect.stringContaining("The provided value for the column is too long for the column's type: Value too long for column: `name`")
                 }))
             })
 
