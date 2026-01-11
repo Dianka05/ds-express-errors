@@ -323,7 +323,7 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(400)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('Value too long for column: Value too long for column: `name`')
+                    message: expect.stringContaining('Value too long for column: target: name')
                 }))
             })
 
@@ -375,6 +375,81 @@ describe('DS Express Errors Library', () => {
                 }))
             })
 
+            test('should map Prisma P2005 Error', () => {
+                const prismaError = {
+                    code: "P2005",
+                    clientVersion: "5.0.0",
+                    message: "The value stored in the database for the field is invalid for the field's type",
+                };
+
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('The value stored in the database for the field is invalid for the field\'s type')
+                }));
+            });
+
+            test('should map Prisma P2006 Error', () => {
+                const prismaError = {
+                code: "P2006",
+                clientVersion: "5.0.0",
+                message: "The provided value for the field is not valid",
+                };
+
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                message: expect.stringContaining('The provided value for the field is not valid')
+                }));
+            });
+
+            test('should map Prisma P2007 Error', () => {
+                const prismaError = {
+                    code: "P2007",
+                    clientVersion: "5.0.0",
+                    message: "Data validation error",
+                };
+
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Data validation error')
+                }));
+            });
+
+            test('should map Prisma P2011 Error', () => {
+                const prismaError = {
+                    code: "P2011",
+                    clientVersion: "5.0.0",
+                    message: "Null constraint violation",
+                };
+
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Null constraint violation')
+                }));
+            });
+
+            test('should map Prisma P2027 Error', () => {
+                const prismaError = {
+                code: "P2027",
+                clientVersion: "5.0.0",
+                    message: "Multiple errors occurred on the database during query execution",
+                };
+
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Multiple errors occurred on the database during query execution')
+                }));
+            });
+
             test('should map Prisma P2014 Error', () => {
                 const prismaError = {
                     code: "P2014",
@@ -395,7 +470,7 @@ describe('DS Express Errors Library', () => {
                 const prismaError = {
                     code: "P2015",
                     clientVersion: "5.0.0",
-                    message: "Related record not found",
+                    message: "A related record could not be found",
                     meta: { relation: "profile" }
                 }
 
@@ -403,7 +478,7 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(404)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('Related record not found: relation: profile')
+                    message: expect.stringContaining('A related record could not be found: relation: profile')
                 }))
             })
 
@@ -451,7 +526,7 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(404)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('Record not found: An operation failed because it depends on one or more records that were required but not found.')
+                    message: expect.stringContaining('An operation failed because it depends on one or more records that were required but not found: cause: Record to update not found.')
                 }))
             })
 
