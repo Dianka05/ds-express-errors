@@ -6,6 +6,7 @@ export function PaymentRequired(message?: string): AppError
 export function Forbidden(message?: string): AppError
 export function NotFound(message?: string): AppError
 export function Conflict(message?: string): AppError
+export function UnprocessableContent(message?: string): AppError
 export function TooManyRequests(message?: string): AppError
 
 export function InternalServerError(message?: string, isOperational?: boolean): AppError

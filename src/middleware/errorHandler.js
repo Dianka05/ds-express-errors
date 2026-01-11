@@ -1,9 +1,7 @@
 const { config, checkIsDev } = require('../config/config')
-const HttpStatus = require('../constants/httpStatus')
 const AppError = require('../errors/AppError')
 const { logError, logWarning } = require('../logger/logger')
 const { mapErrorNameToPreset } = require('../presets/errorMapper')
-const { safeStringify } = require('../utils/safeStringify')
 
 function errorHandler(err, req, res, next) {
     if (err instanceof AppError) {

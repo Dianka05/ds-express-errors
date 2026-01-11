@@ -119,7 +119,7 @@ const { initGlobalHandlers } = require('ds-express-errors');
 initGlobalHandlers();
 ```
 
-## Graceful Shutdown & Global Handlers (v1.5.0)
+## Graceful Shutdown & Global Handlers (v1.5.0+)
 
 DS Express Errors provides a robust way to handle application crashes and termination signals (SIGINT, SIGTERM). It ensures your server stops accepting new connections and finishes active requests before exiting.
 
@@ -201,19 +201,41 @@ Use `setConfig` before initializing the error handler middleware.
 ```javascript
 const { setConfig, errorHandler } = require('ds-express-errors');
 const logger = require('./utils/logger'); // Your Winston/Pino logger
-
+const z = require('zod');
+const Joi = require('joi');
 // Optional: Customize response format and Logger
 setConfig({
+    // (OPTIONAL)
     customLogger: logger, 
+
+    // From version v1.8.0+
+    // (OPTIONAL) You can replace default ds-express-errors check (duck-typing) to more strict by passing error class
+
+    // For now is avaliable only Zod, Joi
+    errorClasses: {
+      Zod: z,
+      Joi: Joi
+    },
+
+    // (OPTIONAL) By defalt  ds-express-errors use all avaliable mapper, but from v1.8.0+ you can choose only needed mappers
+    // Mappers ['zod', 'joi', 'mongoose', 'prisma', 'sequelize', 'expressValidator']
+    needMappers: ['zod', 'joi', 'prisma'], // (In this example) For now library would map only ['zod', 'joi', 'prisma'] errors, other would be `InternalServerError` or if is specifieds `customMappers` it would use that response
+
+    // ----
     
+    // (OPTIONAL) Define your custom mappers and ds-express-errors would use them first
     customMappers: [
         (err) => {
             if (err.name === 'newError') {
                 return Errors.BadRequest()
             }
         }
+        // ...
     ],
+    // (OPTIONAL)
     devEnvironments: ['development', 'dev'],
+
+    // (OPTIONAL)
     formatError: (err, {req, isDev}) => {
         return {
             success: false,
@@ -231,7 +253,20 @@ const app = express();
 app.use(errorHandler);
 ```
 
-### 🔌 Custom Logger (New in v1.4.0)
+### 🔌 Library logger
+
+By default if you not set `customLogger` in `setConfig` library used his own logger
+
+> Library logger have **rate logging limits** support
+
+| Loggers    | params                  | Output color  |
+|------------|-------------------------|---------------|
+| logError   | error, req (optional)   | red           |
+| logWarning | message, req (optional) | yellow        |
+| logInfo    | message, req (optional) | default white |
+
+
+### 🔌 Custom Logger
 
 You can connect your own logger (like Winston, Pino) instead of the built-in console logger.
 The object must support 4 methods: `error`, `warn`, `info`, `debug`.
@@ -271,6 +306,9 @@ If no config is provided, the library uses the default format:
 ```javascript
 let config = {
     customMappers: [],
+    customLogger: null,
+    errorClasses: null,
+    needMappers: null,
     devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
@@ -293,7 +331,7 @@ let config = {
 **Supported mappings:**
 
 - **JWT:** `JsonWebTokenError`, `TokenExpiredError`, `NotBeforeError` → mapped to `401 Unauthorized`
-- **express-validator:** (**New in v1.7.0+**) `FieldValidationError`, `GroupedAlternativeValidationError`, `AlternativeValidationError` → mapped to `422 Unprocessable Content` and `UnknownFieldsError` → mapped to `400 Bad Request`
+- **express-validator:** (**v1.7.0+**) `FieldValidationError`, `GroupedAlternativeValidationError`, `AlternativeValidationError` → mapped to `422 Unprocessable Content` and `UnknownFieldsError` → mapped to `400 Bad Request`
 - **Validation Libraries:** `ZodError` (Zod), `ValidationError` (Joi) — automatically formatted into readable messages.
 - **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`, `MongoServerError` is handled (400 for bad JSON body, 500 for code errors).
 - **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`, `PrismaClientRustPanicError`, `PrismaClientInitializationError`, `PrismaClientValidationError`
@@ -304,15 +342,20 @@ let config = {
 ## Supported Prisma Error Codes:
 | Error Code | Dev Message                   | Prod Message          | HTTP Status |
 | ---------- | ----------------------------- | --------------------- | ----------- |
-| **P2000**  | Value too long for column: ...     | Invalid input         | 400         |
+| **P2000**  | Value too long for column: ...     | Invalid input value         | 400         |
 | **P2001**  | Record does not exist: ...         | Resource not found    | 404         |
 | **P2002**  | Unique constraint failed: ...      | Conflict              | 409         |
 | **P2003**  | Foreign key constraint failed: ... | Invalid reference     | 400         |
+| **P2005**  | The value stored in the database for the field is invalid for the field's type: ... | Invalid data provided     | 400         |
+| **P2006**  | The provided value for the field is not valid: ... | Invalid input value     | 400         |
+| **P2007**  | Data validation error: ... | Invalid reference     | 400         |
+| **P2011**  | Foreign key constraint failed: ... | Invalid request data    | 400         |
 | **P2014**  | Required relation violation: ...   | Invalid relation      | 400         |
-| **P2015**  | Related record not found: ...      | Resource not found    | 404         |
+| **P2015**  | Null constraint violation: ...      | Required data is missing    | 404         |
 | **P2021**  | Table does not exist: ...          | Internal server error | 500         |
 | **P2022**  | Column does not exist: ...         | Internal server error | 500         |
 | **P2025**  | Record not found: ...              | Resource not found    | 404         |
+| **P2027**  | Foreign key constraint failed: ... | Invalid reference     | 500         |
 | **P1001**  | Cannot reach database: ...         | Service unavailable   | 503         |
 | **P1002**  | Database timeout: ...              | Service unavailable   | 503         |
 | **P1003**  | Database does not exist: ...       | Internal server error | 500         |

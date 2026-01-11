@@ -9,8 +9,9 @@ const sequelizeMapper = (err, req) => {
 
     const isSequelizeValidationError = name === 'SequelizeValidationError' && Array.isArray(err.errors)
     const isSequelizeForeignKeyError = name === 'SequelizeForeignKeyConstraintError' && Array.isArray(err.fields)
+    const isSequelizeUniqueConstraintError = name === 'SequelizeUniqueConstraintError' && Array.isArray(err.errors)
 
-    if (isSequelizeValidationError) {
+    if (isSequelizeValidationError || isSequelizeUniqueConstraintError) {
         const formattedMessage = err.errors
             .map(error => error.message)
             .join('; ')

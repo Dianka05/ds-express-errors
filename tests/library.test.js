@@ -323,7 +323,7 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(400)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('Value too long for column: Value too long for column: `name`')
+                    message: expect.stringContaining("The provided value for the column is too long for the column's type: Value too long for column: `name`")
                 }))
             })
 
@@ -375,6 +375,81 @@ describe('DS Express Errors Library', () => {
                 }))
             })
 
+            test('should map Prisma P2005 Error', () => {
+                const prismaError = {
+                    code: "P2005",
+                    clientVersion: "5.0.0",
+                    message: "The value stored in the database for the field is invalid for the field's type",
+                };
+
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('The value stored in the database for the field is invalid for the field\'s type')
+                }));
+            });
+
+            test('should map Prisma P2006 Error', () => {
+                const prismaError = {
+                code: "P2006",
+                clientVersion: "5.0.0",
+                message: "The provided value for the field is not valid",
+                };
+
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                message: expect.stringContaining('The provided value for the field is not valid')
+                }));
+            });
+
+            test('should map Prisma P2007 Error', () => {
+                const prismaError = {
+                    code: "P2007",
+                    clientVersion: "5.0.0",
+                    message: "Data validation error",
+                };
+
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Data validation error')
+                }));
+            });
+
+            test('should map Prisma P2011 Error', () => {
+                const prismaError = {
+                    code: "P2011",
+                    clientVersion: "5.0.0",
+                    message: "Null constraint violation",
+                };
+
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Null constraint violation')
+                }));
+            });
+
+            test('should map Prisma P2027 Error', () => {
+                const prismaError = {
+                code: "P2027",
+                clientVersion: "5.0.0",
+                    message: "Multiple errors occurred on the database during query execution",
+                };
+
+                errorHandler(prismaError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining('Multiple errors occurred on the database during query execution')
+                }));
+            });
+
             test('should map Prisma P2014 Error', () => {
                 const prismaError = {
                     code: "P2014",
@@ -395,7 +470,7 @@ describe('DS Express Errors Library', () => {
                 const prismaError = {
                     code: "P2015",
                     clientVersion: "5.0.0",
-                    message: "Related record not found",
+                    message: "A related record could not be found",
                     meta: { relation: "profile" }
                 }
 
@@ -403,7 +478,7 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(404)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('Related record not found: relation: profile')
+                    message: expect.stringContaining('A related record could not be found: relation: profile')
                 }))
             })
 
@@ -451,7 +526,7 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(404)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('Record not found: An operation failed because it depends on one or more records that were required but not found.')
+                    message: expect.stringContaining('An operation failed because it depends on one or more records that were required but not found: cause: Record to update not found.')
                 }))
             })
 
@@ -503,29 +578,39 @@ describe('DS Express Errors Library', () => {
 
         describe('Express Validator Error Handler', () => {
             test('should map Express-Validator `FieldValidationError` Error', () => {
+               
                 const expressValidatorError = {
-                    type: "field",
-                    location: "body",
-                    path: "email",
-                    value: "invalid-email",
-                    msg: "Invalid value"
+                    errors: [
+                        {
+                            type: 'field',
+                            location: 'body',
+                            path: 'email',
+                            value: 'invalid-email',
+                            msg: 'Invalid value'
+                        }
+                    ],
                 }
-
                 errorHandler(expressValidatorError, req, res, next)
 
                 expect(res.status).toHaveBeenCalledWith(422)
-                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('Invalid value: invalid-email')
-                }))
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        message: expect.stringContaining('Invalid value: email')
+                    })
+                )
             })
 
             test('should map Express-Validator `AlternativeValidationError` Error', () => {
                 const expressValidatorError = {
-                    type: "alternative",
-                    msg: "Invalid value",
-                    nestedErrors: [
-                        { type: "field", path: "phone", msg: "Invalid value" },
-                        { type: "field", path: "email", msg: "Invalid value" }
+                    errors: [
+                        {
+                            type: "alternative",
+                            msg: "Invalid value(s)",
+                            nestedErrors: [
+                                [{ type: "field", path: "phone", msg: "Invalid value" }],
+                                [{ type: "field", path: "email", msg: "Invalid value" }]
+                            ]
+                        }
                     ]
                 }
 
@@ -533,19 +618,23 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(422)
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('Invalid value: phone; email')
+                    message: expect.stringContaining('Invalid value(s): phone; email')
                 }))
             })
 
             test('should map Express-Validator `GroupedAlternativeValidationError` Error', () => {
-                const expressValidatorError = {
-                    type: "alternative_grouped",
-                    msg: "Invalid value",
-                    nestedErrors: [
-                        { type: "field", path: "phone" },
-                        { type: "field", path: "email" }
+               const expressValidatorError = {
+                    errors: [
+                        {
+                            type: "alternative_grouped",
+                            msg: "Invalid value",
+                            nestedErrors: [
+                                [{ type: "field", path: "phone" }],
+                                [{ type: "field", path: "email" }]
+                            ]
+                        }
                     ]
-                }
+               }
 
                 errorHandler(expressValidatorError, req, res, next)
 
@@ -557,12 +646,17 @@ describe('DS Express Errors Library', () => {
 
             test('should map Express-Validator `UnknownFieldsError` Error', () => {
                 const expressValidatorError = {
-                    type: "unknown_fields",
-                    msg: "Unknown field(s)",
-                    nestedErrors: [
-                        { path: "extraField", location: "body", value: "someValue" }
-                    ]   
+                    errors: [
+                        {
+                            type: "unknown_fields",
+                            msg: "Unknown field(s)",
+                            nestedErrors: [
+                                [{ path: "extraField", location: "body", value: "someValue" }]
+                            ]   
+                        }
+                    ]
                 }
+
 
                 errorHandler(expressValidatorError, req, res, next)
 
@@ -680,6 +774,7 @@ describe('DS Express Errors Library', () => {
                 ['Forbidden', 403],
                 ['NotFound', 404],
                 ['Conflict', 409],
+                ['UnprocessableContent', 422],
                 ['TooManyRequests', 429],
                 ['InternalServerError', 500],
                 ['NotImplemented', 501],

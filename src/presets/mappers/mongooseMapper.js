@@ -15,6 +15,8 @@ const mongooseMapper = (err) => {
                 return `${e.message} = [Value]: "${e.value}"`
             }).join('; ')
         return BadRequest(`${isDevEnvironment ? formattedMessage : 'validation error'}`)
+    } else if (name === 'CastError') {
+        return BadRequest(`${isDevEnvironment ? `${name}: ` + err.message : 'Invalid value provided '}`)
     }
 }
 
