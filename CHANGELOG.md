@@ -2,14 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.1] – 2026-01-12 (latest)
+
+- Fixed missing api import for logDebug 
+- `maxLoggerRequests ` new property in config to set maximal log rate requets per 1 seconds (default 100)
+- Added check for BigInt for internal safeStringify method 
+- Fixed incorrect status code in mongoose mapper
+- Fixed incorrect status code in sequelize mapper
+- Logger refactor for `customLogger`
+- Added `Errors.GatewayTimeout(message)`
+- Fix mapping sequileze now correct map: 
+  -  `SequelizeOptimisticLockError`,  
+  -  `SequelizeEmptyResultError`, 
+  -  `SequelizeDatabaseError`,
+  -  `SequelizeConnectionError`
+  -  `SequelizeTimeoutError`
+
 ---
 
-## [1.8.0] – 2026-01-11 (latest)
+## [1.8.0] – 2026-01-11
 
 - Added support for user-provided error classes in custom mappers (Zod, Joi)
 - Added support for turning only needed mappers in config
 - rate limiting logger
 - Express-validator mapper fix incorrect logic
+
 - Expand prisma errors ['`P2005`', `P2006`, `P2007`, `P2011`, `P2027`]
 - updated mongoose & sequelize mappers check
 
