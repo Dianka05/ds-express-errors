@@ -1,8 +1,9 @@
 const { setConfig } = require("./src/config/config")
 const AppError = require("./src/errors/AppError")
-const { logError, logInfo, logWarning } = require("./src/logger/logger")
+const { logError, logInfo, logWarning, logDebug } = require("./src/logger/logger")
 const { asyncHandler } = require("./src/middleware/asyncHandler")
 const { errorHandler, initGlobalHandlers } = require("./src/middleware/errorHandler")
+const { GatewayTimeout } = require("./src/presets/presets")
 const { UnprocessableContent } = require("./src/presets/presets")
 const { NotFound, Unauthorized, BadRequest, Conflict, TooManyRequests, InternalServerError, Forbidden, PaymentRequired, NotImplemented, BadGateway, ServiceUnavailable } = require("./src/presets/presets")
 
@@ -19,6 +20,7 @@ const Errors = {
     NotImplemented,
     BadGateway,
     ServiceUnavailable,
+    GatewayTimeout
 }
 
 module.exports = {
@@ -28,6 +30,7 @@ module.exports = {
     initGlobalHandlers,
     logError,
     logInfo,
+    logDebug,
     logWarning,
     Errors,
     setConfig

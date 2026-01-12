@@ -208,7 +208,7 @@ describe('DS Express Errors Library', () => {
                 
                 errorHandler(mongooseError, req, res, next);
 
-                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.status).toHaveBeenCalledWith(409);
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
                     message: expect.stringContaining('Duplicate field value')
                 }));
@@ -245,7 +245,7 @@ describe('DS Express Errors Library', () => {
                 
                 errorHandler(sequelizeForeignKeyError, req, res, next);
 
-                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.status).toHaveBeenCalledWith(409);
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
                     message: expect.stringContaining('SequelizeForeignKeyConstraintError: Fields: \"userId\"; insert or update on table violates foreign key constraint')
                 }));
@@ -270,11 +270,97 @@ describe('DS Express Errors Library', () => {
                 
                 errorHandler(sequelizeUniqueError, req, res, next);
 
-                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.status).toHaveBeenCalledWith(409);
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
                     message: expect.stringContaining('SequelizeUniqueConstraintError: email must be unique')
                 }));
             });
+            test('should map Sequelize Optimistic Lock Error', () => {
+                const sequelizeOptimisticError = {
+                    name: 'SequelizeOptimisticLockError',
+                    message: 'Attempted to update stale instance',
+                    modelName: 'User',
+                    values: { version: 2 }
+                };
+
+                errorHandler(sequelizeOptimisticError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(409);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining(
+                        'SequelizeOptimisticLockError: Model: User; Values:'
+                    )
+                }));
+            });
+
+            test('should map Sequelize Empty Result Error', () => {
+                const sequelizeEmptyResultError = {
+                    name: 'SequelizeEmptyResultError',
+                    message: 'No result found for query'
+                };
+
+                errorHandler(sequelizeEmptyResultError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(404);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining(
+                        'SequelizeEmptyResultError: No result found for query'
+                    )
+                }));
+            });
+
+            test('should map Sequelize Database Error', () => {
+                const sequelizeDatabaseError = {
+                    name: 'SequelizeDatabaseError',
+                    message: 'syntax error at or near "FROM"',
+                    sql: 'SELECT * FROM',
+                    parent: {
+                        code: '42601'
+                    }
+                };
+
+                errorHandler(sequelizeDatabaseError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining(
+                        'SequelizeDatabaseError: SQL: SELECT * FROM'
+                    )
+                }));
+            });
+
+            test('should map Sequelize Connection Error', () => {
+                const sequelizeConnectionError = {
+                    name: 'SequelizeConnectionError',
+                    message: 'Connection refused'
+                };
+
+                errorHandler(sequelizeConnectionError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(503);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining(
+                        'SequelizeConnectionError: Connection refused'
+                    )
+                }));
+            });
+
+            test('should map Sequelize Timeout Error', () => {
+                const sequelizeTimeoutError = {
+                    name: 'SequelizeTimeoutError',
+                    message: 'Query timed out'
+                };
+
+                errorHandler(sequelizeTimeoutError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(504);
+                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+                    message: expect.stringContaining(
+                        'SequelizeTimeoutError: Query timed out'
+                    )
+                }));
+            });
+
             test('should map Sequelize Validation Error', () => {
                 const sequelizeValidationError = {
                     name: "SequelizeValidationError",
@@ -729,7 +815,89 @@ describe('DS Express Errors Library', () => {
                     message: 'validation error' 
                 }));
             });
+
+            test('should return safe message in prod mode for Sequelize Foreign Key Error', () => {
+                const sequelizeForeignKeyError = {
+                    name: 'SequelizeForeignKeyConstraintError',
+                    message: 'insert or update on table violates foreign key constraint',
+                    fields: ['userId'],
+                    table: 'Orders',
+                    index: 'orders_userId_fkey',
+                    reltype: 'foreign key'
+                };
+
+                errorHandler(sequelizeForeignKeyError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(409);
+                expect(res.json).toHaveBeenCalledWith({
+                    message: 'invalid references',
+                    status: "fail"
+                });
+            });
+
+            test('should return safe message in prod mode for Sequelize Unique Error', () => {
+    
+                const sequelizeUniqueError = {
+                    name: 'SequelizeUniqueConstraintError',
+                    message: 'email must be unique',
+                    errors: [
+                        {
+                            message: 'email must be unique',
+                            type: 'unique violation',
+                            path: 'email',
+                            value: 'user@example.com'
+                        }
+                    ]
+                };
+    
+                errorHandler(sequelizeUniqueError, req, res, next);
+    
+                expect(res.status).toHaveBeenCalledWith(409);
+                expect(res.json).toHaveBeenCalledWith({
+                    message: 'Resource already exists',
+                    status: "fail"
+                });
+            });
+
+            test('should return safe message in prod mode for Sequelize Validation Error', () => {
+                const sequelizeValidationError = {
+                    name: 'SequelizeValidationError',
+                    message: 'Validation error',
+                    errors: [
+                        { message: 'email is invalid' }
+                    ]
+                };
+
+                errorHandler(sequelizeValidationError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(400);
+                expect(res.json).toHaveBeenCalledWith({
+                    message: 'validation error',
+                    status: "fail"
+                });
+            });
+
+            test('should return safe message in prod mode for Sequelize Database Error', () => {
+                const sequelizeDatabaseError = {
+                    name: 'SequelizeDatabaseError',
+                    message: 'syntax error',
+                    sql: 'SELECT * FROM',
+                    parent: { code: '42601' }
+                };
+
+                errorHandler(sequelizeDatabaseError, req, res, next);
+
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.json).toHaveBeenCalledWith({
+                    message: 'Database error occurred',
+                    status: "error"
+                });
+            });
+
+
         });
+
+
 
         describe('JWT (JSON Web Token)', () => {
             test('should map JsonWebTokenError to 401 Unauthorized', () => {
@@ -779,7 +947,8 @@ describe('DS Express Errors Library', () => {
                 ['InternalServerError', 500],
                 ['NotImplemented', 501],
                 ['BadGateway', 502],
-                ['ServiceUnavailable', 503]
+                ['ServiceUnavailable', 503],
+                ['GatewayTimeout', 504],
             ])('Errors.%s should return status %i', (methodName, statusCode) => {
                 const err = Errors[methodName]('Test');
                 expect(err.statusCode).toBe(statusCode);

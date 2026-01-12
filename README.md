@@ -14,7 +14,7 @@ It provides ready-to-use error classes (HTTP Presets), a centralized error handl
 
 - **Ready-to-use HTTP presets:** `BadRequest`, `NotFound`, `Unauthorized`, and others, corresponding to standard HTTP codes.  
 - **Centralized handling:** One middleware catches all errors and formats them into a unified JSON response.  
-- **Automatic mapping:** Converts native errors (like JWT, MongoDB duplicate key errors or Prisma/Sequelize/Zod/Joi validation errors) into clear HTTP responses.  
+- **Automatic mapping:** Converts native errors (like JWT, MongoDB duplicate key errors or Prisma/Sequelize/Zod/Joi validation errors, express-validator) into clear HTTP responses.  
 - **Logging:** Built-in logger with levels (`Error`, `Warning`, `Info`, `Debug`) and timestamps.  
 - **Custom Logger:** Easily integrate external loggers like **Winston** or **Pino** by passing them into the configuration.
 - **Security:** In production (`NODE_ENV=production`), stack traces, sensitive data are hidden; visible in development. 
@@ -174,6 +174,7 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 | `Errors.NotImplemented(message)` | 501 | Not Implemented |
 | `Errors.BadGateway(message)` | 502 | Bad Gateway |
 | `Errors.ServiceUnavailable(message)` | 503 | Service Unavailable |
+| `Errors.GatewayTimeout(message)` | 504 | Gateway Timeout |
 
 ---
 
@@ -223,6 +224,9 @@ setConfig({
 
     // ----
     
+    // (OPTIONAL) Set prefered log rate per 1 minute
+    maxLoggerRequests: 1000,
+
     // (OPTIONAL) Define your custom mappers and ds-express-errors would use them first
     customMappers: [
         (err) => {
@@ -263,7 +267,8 @@ By default if you not set `customLogger` in `setConfig` library used his own log
 |------------|-------------------------|---------------|
 | logError   | error, req (optional)   | red           |
 | logWarning | message, req (optional) | yellow        |
-| logInfo    | message, req (optional) | default white |
+| logInfo    | message | default white |
+| logDebug    | message, req (optional) | blue |
 
 
 ### 🔌 Custom Logger
@@ -309,6 +314,7 @@ let config = {
     customLogger: null,
     errorClasses: null,
     needMappers: null,
+    maxLoggerRequests: 100,
     devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',
@@ -333,9 +339,9 @@ let config = {
 - **JWT:** `JsonWebTokenError`, `TokenExpiredError`, `NotBeforeError` → mapped to `401 Unauthorized`
 - **express-validator:** (**v1.7.0+**) `FieldValidationError`, `GroupedAlternativeValidationError`, `AlternativeValidationError` → mapped to `422 Unprocessable Content` and `UnknownFieldsError` → mapped to `400 Bad Request`
 - **Validation Libraries:** `ZodError` (Zod), `ValidationError` (Joi) — automatically formatted into readable messages.
-- **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`, `MongoServerError` is handled (400 for bad JSON body, 500 for code errors).
+- **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`, `MongoServerError` is handled (400 for bad JSON body, 500 for code errors, 409 colflict).
 - **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`, `PrismaClientRustPanicError`, `PrismaClientInitializationError`, `PrismaClientValidationError`
-- **Sequelize:** `SequelizeUniqueConstraintError`, `SequelizeValidationError`, `SequelizeForeignKeyConstraintError` 
+- **Sequelize:** `SequelizeUniqueConstraintError`, `SequelizeValidationError`, `SequelizeForeignKeyConstraintError`, `SequelizeOptimisticLockError`, `SequelizeEmptyResultError`, `SequelizeDatabaseError`, `SequelizeConnectionError`, `SequelizeTimeoutError`
 - **JS Native:** `ReferenceError`, `TypeError` → mapped to `500`. `SyntaxError` is handled (400 for bad JSON body, 500 for code errors).
 
 ---
@@ -359,6 +365,21 @@ let config = {
 | **P1001**  | Cannot reach database: ...         | Service unavailable   | 503         |
 | **P1002**  | Database timeout: ...              | Service unavailable   | 503         |
 | **P1003**  | Database does not exist: ...       | Internal server error | 500         |
+
+
+## Supported Sequelize errors:
+
+| Error Code / Type | Prod Message | HTTP Status |
+|------------------|-------------|-------------|
+| **SequelizeValidationError** | validation error | 400 |
+| **SequelizeUniqueConstraintError** | Resource already exists | 409 |
+| **SequelizeForeignKeyConstraintError** | invalid references | 409 |
+| **SequelizeOptimisticLockError** | Resource conflict occurred | 409 |
+| **SequelizeEmptyResultError** | Resource not found | 404 |
+| **SequelizeDatabaseError** | Database error occurred | 500 |
+| **SequelizeConnectionError** | Database connection error occurred | 503 |
+| **SequelizeTimeoutError** | Database timeout error occurred | 504 |
+
 
 
 ## 📝 Example Client Response
