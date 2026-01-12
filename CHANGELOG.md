@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [1.8.1] – 2026-01-12 (latest)
 
 - Fixed missing api import for logDebug 
-- `maxLoggerRequests ` new property in config to set maximal log rate requets per 1 seconds (default 100)
+- `maxLoggerRequests ` new property in config to set maximal log rate requets per 1 minute (default 100)
 - Added check for BigInt for internal safeStringify method 
 - Fixed incorrect status code in mongoose mapper
 - Fixed incorrect status code in sequelize mapper
