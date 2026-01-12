@@ -48,26 +48,19 @@ function ServiceUnavailable(message = "Service Unavailable") {
     return new AppError(message, HttpStatus.SERVICE_UNAVAILABLE, true)
 }
 
+function GatewayTimeout(message = "Gateway Timeout") {
+    return new AppError(message, HttpStatus.GATEWAY_TIMEOUT, true)
+}
+
 const presetErrors = {
     // 400
     'BadRequest': BadRequest,
-    // 'ValidationError': BadRequest,
-    // 'CastError': BadRequest, // Mongoose
-    // 'DuplicateKeyError': BadRequest, // Mongoose (legacy name usage)
-    // 'SequelizeUniqueConstraintError': BadRequest, 
-    // 'SequelizeValidationError': BadRequest,
-    // 'SequelizeForeignKeyConstraintError': BadRequest,
-    // 'PrismaClientKnownRequestError': BadRequest,
-    // 'PrismaClientUnknownRequestError': BadRequest,
-    // 'PrismaClientRustPanicError': BadRequest,
-    // 'PrismaClientInitializationError': BadRequest,
-    // 'PrismaClientValidationError': BadRequest,
     
     // 401
     'JsonWebTokenError': Unauthorized,
     'TokenExpiredError': Unauthorized,
     'NotBeforeError': Unauthorized,
-    'UnauthorizedError': Unauthorized, // express-jwt
+    'UnauthorizedError': Unauthorized,
     'Unauthorized': Unauthorized,
 
     // 402
@@ -119,5 +112,6 @@ module.exports = {
     NotImplemented,
     BadGateway,
     ServiceUnavailable,
+    GatewayTimeout,
     presetErrors
 }

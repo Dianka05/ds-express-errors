@@ -28,6 +28,7 @@ export interface ErrorConfig {
     errorClasses?: ErrorClasses
     devEnvironments?: string[]
     needMappers?: string[]
+    maxLoggerRequests?: number
     formatError?: (err: AppError | Error, options: ConfigOptions) => any
 }
 

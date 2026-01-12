@@ -5,6 +5,7 @@ let config = {
     customLogger: null,
     errorClasses: null,
     needMappers: null,
+    maxLoggerRequests: 100,
     devEnvironments: ['dev', 'development'],
     formatError: (err, {req, isDev}) => ({ 
         status: err.isOperational ? 'fail' : 'error',

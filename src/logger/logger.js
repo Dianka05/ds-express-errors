@@ -3,6 +3,7 @@ const { checkLoggerExist } = require("../config/config")
 const { checkIsDev } = require("../config/config")
 
 let rateLimiters;
+const MAX_REQUESTS = config?.maxLoggerRequests || 100;
 
 function logError(error, req) {
 
@@ -23,7 +24,14 @@ function logError(error, req) {
         const url = req?.originalUrl ? safeUrl(req.originalUrl) : ''
 
         if (checkLoggerExist()) {
-            config.customLogger.error(`[${timestamp}] ${req?.method || ''} ${url} \n[Error]: ${code} ${name} \nMessage: ${message} \nStatusCode: ${statusCode} \n${stack ? `Stack: ${stack}` : ''} \nOperational: ${isOperational}\n`)
+            config.customLogger.error(
+                error, 
+                { 
+                    url: req?.originalUrl, 
+                    method: req?.method,
+                    ...(req?.headers?.['x-request-id'] ? {requestId: req?.headers?.['x-request-id']} : {} )
+                }
+            )
         } else {
             if (config.customLogger) console.warn(`[Logger is connected but not contain 'error']`)
             console.error(`\x1b[31m [${timestamp}] ${req?.method || ''} ${url} \n[Error]: ${code} ${name} \nMessage: ${message} \nStatusCode: ${statusCode} \n${stack ? `Stack: ${stack}` : ''} \nOperational: ${isOperational}\n \x1b[0m`)
@@ -41,7 +49,7 @@ function logInfo(rawMessage) {
     const message = safeMessage(rawMessage)
 
     if (checkLoggerExist()) {
-        config.customLogger.info(`[${timestamp}] - [INFO]: ${message}`)
+        config.customLogger.info(message)
     } else {
         if (config.customLogger) console.warn(`[Logger is connected but not contain 'info']`)
         console.log(`[${timestamp}] - [INFO]: ${message}`)
@@ -61,7 +69,14 @@ function logWarning(rawMessage, req) {
 
 
     if (checkLoggerExist()) {
-        config.customLogger.warn(`[${timestamp}] - ${req?.method || ''} ${url} \n[WARNING]: ${message}`)
+        config.customLogger.warn(
+            message, 
+            { 
+                url: req?.originalUrl, 
+                method: req?.method,
+                ...(req?.headers?.['x-request-id'] ? {requestId: req?.headers?.['x-request-id']} : {} )
+            }
+        )
     } else {
             if (config.customLogger) console.warn(`[Logger is connected but not contain 'warn']`)
         console.warn(`\x1b[33m[${timestamp}] - ${req?.method || ''} ${url} \n[WARNING]: ${message}\x1b[0m`)
@@ -80,7 +95,14 @@ function logDebug(rawMessage, req) {
     const url = req?.originalUrl ? safeUrl(req.originalUrl) : ''
 
     if (checkLoggerExist()) {
-        config.customLogger.debug(`[${timestamp}] - [DEBUG]: ${req?.method || ''} ${url} [Message]: ${message}`)
+        config.customLogger.debug(
+            message, 
+            { 
+                url: req?.originalUrl, 
+                method: req?.method,
+                ...(req?.headers?.['x-request-id'] ? {requestId: req?.headers?.['x-request-id']} : {} )
+            }
+        )
     } else {
         if (config.customLogger) console.warn(`[Logger is connected but not contain 'debug']`)
         console.debug(`\x1b[34m[${timestamp}] - [DEBUG]: ${req?.method || ''} ${url} [Message]: ${message}\x1b[0m`)
@@ -102,9 +124,8 @@ const safeMessage = (msg) => {
 
 const checkRateLimit = () => {
     const now = performance.now()
-
+    
     const WINDOW_SIZE_IN_MS = 60 * 1000;
-    const MAX_REQUESTS = 5;
 
     if (!rateLimiters) {
         rateLimiters = {
