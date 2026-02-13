@@ -1,4 +1,4 @@
-const ConfigError = require("../errors/internal/ConfigError")
+const {ConfigAlreadySet, ConfigInvalid} = require("../errors/internal/ConfigError")
 
 let config = {
     customMappers: [],
@@ -18,29 +18,39 @@ let config = {
     })
 }
 
+let isSetConfigCalled = false
+
+function resetSetConfigCalled () {
+    isSetConfigCalled = false
+}
+
 const setConfig = (newOptions) => {
+    if (isSetConfigCalled) {
+        throw new ConfigAlreadySet('setConfig should be called only once', setConfig)
+    }
+
     if (!newOptions || typeof newOptions !== 'object' || Array.isArray(newOptions)) {
-        throw new ConfigError('setConfig expected an object', setConfig)
+        throw new ConfigInvalid('setConfig expected an object', setConfig)
     } else if (newOptions && Object.keys(newOptions).length === 0) {
-        throw new ConfigError('setConfig should not be null if inicializated', setConfig)
+        throw new ConfigSettingMissing('setConfig should not be null if initialized', setConfig)
     }
 
     if (newOptions.customMappers && !Array.isArray(newOptions.customMappers)) {
-        throw new ConfigError('customMappers must be an array', setConfig)
+        throw new ConfigInvalid('customMappers must be an array', setConfig)
     } else if (newOptions.customMappers && newOptions.customMappers.some(fn => fn.constructor.name === 'AsyncFunction' )) {
-        throw new ConfigError('customMappers must contain only sync functions', setConfig)
+        throw new ConfigInvalid('customMappers must contain only sync functions', setConfig)
     }
 
     if (newOptions.devEnvironments && !Array.isArray(newOptions.devEnvironments)) {
-        throw new ConfigError('devEnvironments must be an array', setConfig)
+        throw new ConfigInvalid('devEnvironments must be an array', setConfig)
     }
 
     if (newOptions.needMappers && !Array.isArray(newOptions.needMappers)) {
-        throw new ConfigError('needMappers must be an array', setConfig)
+        throw new ConfigInvalid('needMappers must be an array', setConfig)
     }
 
     if (newOptions.errorClasses && typeof newOptions.errorClasses !== 'object' ) {
-        throw new ConfigError('errorClasses must be an object', setConfig)
+        throw new ConfigInvalid('errorClasses must be an object', setConfig)
     }
 
     if (newOptions.formatError && 
@@ -48,16 +58,17 @@ const setConfig = (newOptions) => {
         || newOptions.formatError === null 
         || 'formatError' in newOptions && newOptions.formatError === undefined) 
     {
-        throw new ConfigError('formatError must be an function', setConfig)
+        throw new ConfigInvalid('formatError must be an function', setConfig)
     }
 
-    if (newOptions.logger && Array.isArray(newOptions.logger)) {
-        throw new ConfigError('logger must be an object', setConfig)
-    } else if (newOptions.logger && Object.keys(newOptions.logger).length === 0) {
-        throw new ConfigError('logger should not be null or empty if inicializated', setConfig)
+    if (newOptions.customLogger && Array.isArray(newOptions.customLogger)) {
+        throw new ConfigInvalid('customLogger must be an object', setConfig)
+    } else if (newOptions.customLogger && Object.keys(newOptions.customLogger).length === 0) {
+        throw new ConfigSettingMissing('customLogger should not be null or empty if initialized', setConfig)
     }
 
     Object.assign(config, newOptions)
+    isSetConfigCalled = true
 }
 
 const checkLoggerExist = () => {
@@ -87,4 +98,4 @@ const checkIsDebug = () => {
     return process.env.DEBUG === "true"
 }
 
-module.exports = { config, setConfig, checkIsDev, checkIsDebug, checkLoggerExist }
+module.exports = { config, setConfig, checkIsDev, checkIsDebug, checkLoggerExist, resetSetConfigCalled }

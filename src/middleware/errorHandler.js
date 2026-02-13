@@ -1,7 +1,10 @@
 const { config, checkIsDev } = require('../config/config')
 const AppError = require('../errors/AppError')
+const { GlobalHandlerAlreadySet, GlobalHandlerInvalid } = require('../errors/internal/GlobalHandlerError')
 const { logError, logWarning } = require('../logger/logger')
 const { mapErrorNameToPreset } = require('../presets/errorMapper')
+const isAsync = require('../utils/isAsync')
+
 
 function errorHandler(err, req, res, next) {
     if (err instanceof AppError) {
@@ -22,6 +25,17 @@ function defaultErrorAnswer(err, req, res) {
 }
 
 const gracefulHttpClose = (server) => {
+
+    const isServerObject = server && 
+        typeof server.listen === 'function' && 
+        typeof server.close === 'function' &&
+        typeof server.address === 'function'
+    ;
+
+    if (!isServerObject) {
+        throw new GlobalHandlerInvalid('\x1b[31mPlease provide a valid \x1b[41m\x1b[1mserver\x1b[0m\x1b[0m\x1b[31m object to\x1b[0m\x1b[34m gracefulHttpClose()\x1b[0m', gracefulHttpClose)
+    }
+
   return (signal) =>
     new Promise((resolve, reject) => {
       let finished = false
@@ -45,6 +59,11 @@ const gracefulHttpClose = (server) => {
     })
 }
 
+let isGlobalHandlerInitialized = false
+
+function resetGlobalHandlerInitialized() {
+    isGlobalHandlerInitialized = false
+}
 
 function initGlobalHandlers(options = {}) {
 
@@ -56,6 +75,22 @@ function initGlobalHandlers(options = {}) {
         closeServer,
         maxTimeout = 10000
     } = options
+
+    if (isGlobalHandlerInitialized) {
+        throw new GlobalHandlerAlreadySet('Global handlers should be initialized only once', initGlobalHandlers)
+    } 
+
+    if (onCrash && !isAsync(onCrash)) {
+        throw new GlobalHandlerInvalid('onCrash should be an async function', initGlobalHandlers)
+    }
+
+    if (onShutdown && !isAsync(onShutdown)) {
+        throw new GlobalHandlerInvalid('onShutdown should be an async function', initGlobalHandlers)
+    }
+
+    if (closeServer && typeof closeServer !== 'function') {
+        throw new GlobalHandlerInvalid('\x1b[31m closeServer should be a function -\x1b[0m\x1b[34m use gracefulHttpClose() \x1b[0m', initGlobalHandlers)
+    }
 
     let shuttingDown = false
 
@@ -132,7 +167,7 @@ function initGlobalHandlers(options = {}) {
         }
     })
 
-    process.on('uncaughtException', (error) => {
+    process.on('uncaughtException', (error, origin) => {
         logError(error)
         if (exitOnUncaughtException) {
             safeShutdown(() => handleCrash(error), 1)
@@ -147,6 +182,8 @@ function initGlobalHandlers(options = {}) {
     process.on('SIGTERM', () => safeShutdown(handleNormalShutdown))
     process.on('SIGQUIT', () => safeShutdown(handleNormalShutdown))
 
+    isGlobalHandlerInitialized = true
+
 }
 
-module.exports = {errorHandler, initGlobalHandlers, gracefulHttpClose}
+module.exports = {errorHandler, initGlobalHandlers, gracefulHttpClose, resetGlobalHandlerInitialized}

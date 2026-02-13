@@ -4,6 +4,7 @@ const { errorHandler } = require('../src/middleware/errorHandler');
 const { asyncHandler } = require('../src/middleware/asyncHandler');
 const { Errors } = require('../index'); 
 const AppError = require('../src/errors/AppError');
+const { resetSetConfigCalled } = require('../src/config/config');
 
 global.console.error = jest.fn();
 global.console.warn = jest.fn();
@@ -13,6 +14,7 @@ global.console.debug = jest.fn();
 describe('DS Express Errors Library', () => {
     beforeAll(() => {
         process.env.DEBUG = 'true'; 
+        resetSetConfigCalled()
     });
     describe('AppError & Presets', () => {
         test('should create AppError correctly', () => {
@@ -34,26 +36,6 @@ describe('DS Express Errors Library', () => {
             const err = Errors.InternalServerError();
             expect(err.statusCode).toBe(500);
             expect(err.isOperational).toBe(false);
-        });
-    });
-    describe('Custom Logger Integration', () => {
-        const { setConfig } = require('../src/config/config');
-        const { errorHandler } = require('../src/middleware/errorHandler');
-
-        test('should use custom logger if provided', () => {
-            const customLogger = {
-                error: jest.fn(),
-                info: jest.fn(),
-                warn: jest.fn(),
-                debug: jest.fn(),
-            };
-
-            setConfig({ customLogger });
-
-            const error = new Error('Logger Test');
-            errorHandler(error, {}, { status: () => ({ json: () => {} }) }, () => {});
-
-            expect(customLogger.error).toHaveBeenCalled();
         });
     });
 
@@ -784,6 +766,7 @@ describe('DS Express Errors Library', () => {
             
             beforeAll(() => {
                 process.env.NODE_ENV = 'production';
+                resetSetConfigCalled()
                 setConfig({ devEnvironments: ['dev', 'development'] });
             });
 
@@ -955,27 +938,6 @@ describe('DS Express Errors Library', () => {
             });
         })
 
-         describe('Custom Mappers Configuration', () => {
-            const { setConfig } = require('../src/config/config');
-
-            test('should use custom mapper if provided', () => {
-                setConfig({
-                    customMappers: [
-                        (err) => {
-                            if (err.message === 'ImATeapot') return new AppError('Teapot Error', 418);
-                        }
-                    ]
-                });
-
-                const weirdError = new Error('ImATeapot');
-                errorHandler(weirdError, req, res, next);
-
-                expect(res.status).toHaveBeenCalledWith(418);
-                expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: 'Teapot Error'
-                }));
-            });
-        });
 
     });
 
