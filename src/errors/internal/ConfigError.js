@@ -1,12 +1,23 @@
-class ConfigError extends Error {
-    constructor(message, caller) {
-        super(message)
-        this.name = 'DsConfigError'
+const { CONFIG_CODES } = require("../../constants/errorCodes")
+const InternalError = require("./InternalError")
 
-        if (Error.captureStackTrace) {
-            Error.captureStackTrace(this, caller)
-        }
+class ConfigAlreadySet extends InternalError {
+    constructor(message, caller) {
+        super(message, CONFIG_CODES.CONFIG_ALREADY_SET, caller)
     }
 }
 
-module.exports = ConfigError
+class ConfigSettingMissing extends InternalError {
+    constructor(message, caller) {
+        super(message, CONFIG_CODES.CONFIG_SETTING_MISSING, caller)
+    }
+}
+
+class ConfigInvalid extends InternalError {
+    constructor(message, caller) {
+        super(message, CONFIG_CODES.CONFIG_INVALID, caller)
+    }
+}
+
+
+module.exports = {ConfigAlreadySet, ConfigInvalid, ConfigSettingMissing}
