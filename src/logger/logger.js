@@ -33,7 +33,7 @@ function logError(error, req) {
                 }
             )
         } else {
-            if (config.customLogger) console.warn(`[Logger is connected but not contain 'error']`)
+            if (config.customLogger) console.warn(`\x1b[33m[Logger is connected but not contain 'error']\x1b[0m`)
             console.error(`\x1b[31m [${timestamp}] ${req?.method || ''} ${url} \n[Error]: ${code} ${name} \nMessage: ${message} \nStatusCode: ${statusCode} \n${stack ? `Stack: ${stack}` : ''} \nOperational: ${isOperational}\n \x1b[0m`)
         }
     }
@@ -51,7 +51,7 @@ function logInfo(rawMessage) {
     if (checkLoggerExist()) {
         config.customLogger.info(message)
     } else {
-        if (config.customLogger) console.warn(`[Logger is connected but not contain 'info']`)
+        if (config.customLogger) console.warn(`\x1b[33m[Logger is connected but not contain 'info']\x1b[0m`)
         console.log(`[${timestamp}] - [INFO]: ${message}`)
     }
 }
@@ -78,7 +78,7 @@ function logWarning(rawMessage, req) {
             }
         )
     } else {
-            if (config.customLogger) console.warn(`[Logger is connected but not contain 'warn']`)
+            if (config.customLogger) console.warn(`\x1b[33m[Logger is connected but not contain 'warn']\x1b[0m`)
         console.warn(`\x1b[33m[${timestamp}] - ${req?.method || ''} ${url} \n[WARNING]: ${message}\x1b[0m`)
     }
 }
@@ -104,7 +104,7 @@ function logDebug(rawMessage, req) {
             }
         )
     } else {
-        if (config.customLogger) console.warn(`[Logger is connected but not contain 'debug']`)
+        if (config.customLogger) console.warn(`\x1b[33m[Logger is connected but not contain 'debug']\x1b[0m`)
         console.debug(`\x1b[34m[${timestamp}] - [DEBUG]: ${req?.method || ''} ${url} [Message]: ${message}\x1b[0m`)
     }
 }

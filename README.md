@@ -119,7 +119,7 @@ const { initGlobalHandlers } = require('ds-express-errors');
 initGlobalHandlers();
 ```
 
-## Graceful Shutdown & Global Handlers (v1.5.0+)
+## Graceful Shutdown & Global Handlers (v1.8.0+)
 
 DS Express Errors provides a robust way to handle application crashes and termination signals (SIGINT, SIGTERM). It ensures your server stops accepting new connections and finishes active requests before exiting.
 
