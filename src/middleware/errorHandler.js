@@ -7,6 +7,11 @@ const isAsync = require('../utils/isAsync')
 
 
 function errorHandler(err, req, res, next) {
+
+    if (res.headerSent) {
+        return next(err)
+    }
+
     if (err instanceof AppError) {
         defaultErrorAnswer(err, req, res)
     } else {
@@ -116,7 +121,9 @@ function initGlobalHandlers(options = {}) {
 
         try {
             await Promise.race([
-                cleanupFn(signal).then(() => finished = true),
+                Promise.resolve(cleanupFn(signal)).then(() => {
+                    finished = true
+                }),                
                 new Promise((_, reject) => 
                     setTimeout(() => {
                         controller.abort()

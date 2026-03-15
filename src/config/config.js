@@ -1,4 +1,4 @@
-const {ConfigAlreadySet, ConfigInvalid} = require("../errors/internal/ConfigError")
+const {ConfigAlreadySet, ConfigInvalid, ConfigSettingMissing } = require("../errors/internal/ConfigError")
 
 let config = {
     customMappers: [],
@@ -37,7 +37,10 @@ const setConfig = (newOptions) => {
 
     if (newOptions.customMappers && !Array.isArray(newOptions.customMappers)) {
         throw new ConfigInvalid('customMappers must be an array', setConfig)
-    } else if (newOptions.customMappers && newOptions.customMappers.some(fn => fn.constructor.name === 'AsyncFunction' )) {
+    } else if ( 
+        newOptions.customMappers &&
+        newOptions.customMappers.some(fn => typeof fn !== 'function' || fn.constructor.name === 'AsyncFunction')
+    ) {
         throw new ConfigInvalid('customMappers must contain only sync functions', setConfig)
     }
 
@@ -49,19 +52,25 @@ const setConfig = (newOptions) => {
         throw new ConfigInvalid('needMappers must be an array', setConfig)
     }
 
-    if (newOptions.errorClasses && typeof newOptions.errorClasses !== 'object' ) {
+    if (
+        newOptions.errorClasses &&
+        (
+            typeof newOptions.errorClasses !== 'object' ||
+            Array.isArray(newOptions.errorClasses) ||
+            newOptions.errorClasses === null
+        )
+    ) {
         throw new ConfigInvalid('errorClasses must be an object', setConfig)
     }
 
-    if (newOptions.formatError && 
-        typeof newOptions.formatError !== 'function' 
-        || newOptions.formatError === null 
-        || 'formatError' in newOptions && newOptions.formatError === undefined) 
+    if ('formatError' in newOptions && typeof newOptions.formatError !== 'function') 
     {
         throw new ConfigInvalid('formatError must be an function', setConfig)
     }
 
-    if (newOptions.customLogger && Array.isArray(newOptions.customLogger)) {
+    if (newOptions.customLogger &&
+        (typeof newOptions.customLogger !== 'object' || Array.isArray(newOptions.customLogger))
+    ) {
         throw new ConfigInvalid('customLogger must be an object', setConfig)
     } else if (newOptions.customLogger && Object.keys(newOptions.customLogger).length === 0) {
         throw new ConfigSettingMissing('customLogger should not be null or empty if initialized', setConfig)
