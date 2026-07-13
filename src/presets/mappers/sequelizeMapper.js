@@ -8,6 +8,10 @@ const sequelizeMapper = (err, req) => {
     const isDevEnvironment = checkIsDev()
     const { name, message } = err
 
+    if (!name?.startsWith('Sequelize')) {
+        return null;
+    }
+
     //400
     const isSequelizeValidationError = name === 'SequelizeValidationError' && Array.isArray(err.errors)
 
@@ -25,9 +29,10 @@ const sequelizeMapper = (err, req) => {
     //500
     const isSequelizeDatabaseError = name === 'SequelizeDatabaseError' && err?.parent?.code
     //503
-    const isSequelizeConnectionError = name === 'SequelizeConnectionError'
+    const isSequelizeConnectionError = name === 'SequelizeConnectionError' || 'SequelizeConnectionRefusedError' 
+    || 'SequelizeHostNotFoundError' || 'SequelizeHostNotReachableError' || 'SequelizeAccessDeniedError' || 'SequelizeConnectionAcquireTimeoutError'
     //504
-    const isSequelizeTimeoutError = name === 'SequelizeTimeoutError'
+    const isSequelizeTimeoutError = name === 'SequelizeTimeoutError' || 'SequelizeConnectionTimedOutError'
 
     if (isSequelizeOptimisticLockError) {
         const formattedMessage = `Model: ${err.modelName}; Values: ${safeStringify(err.values)}; ${message}`
