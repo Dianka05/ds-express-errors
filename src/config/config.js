@@ -107,4 +107,8 @@ const checkIsDebug = () => {
     return process.env.DEBUG === "true"
 }
 
-module.exports = { config, setConfig, checkIsDev, checkIsDebug, checkLoggerExist, resetSetConfigCalled }
+const getConfig = () => {
+    return config;
+} 
+
+module.exports = { config, setConfig, getConfig, checkIsDev, checkIsDebug, checkLoggerExist, resetSetConfigCalled }

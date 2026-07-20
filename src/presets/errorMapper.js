@@ -32,6 +32,7 @@ const mapErrorNameToPreset = (err, req) => {
     }
 
     const { name, code, message } = err
+    const saveMessage = isDevEnvironment ? message : "An unexpected error occurred."
 
     const getActiveMappers = () => {
         const needMappers = config?.needMappers
@@ -58,13 +59,13 @@ const mapErrorNameToPreset = (err, req) => {
     const presetError = presetErrors[name]
 
     if (presetError) {
-        return presetError(`${name}: ${message}`)
+        return presetError(`${name}: ${saveMessage}`)
     }
     if (isDevEnvironment || checkIsDebug()) {
-        logDebug(`[Unknown error mapping]: => Name: ${name}, ${code ? `| Code: ${code}`: ''}, | Message: ${message}`, req)
+        logDebug(`[Unknown error mapping]: => Name: ${name}, ${code ? `| Code: ${code}`: ''}, | Message: ${saveMessage}`, req)
     }
     
-    return InternalServerError(isDevEnvironment ? message : "An unexpected error occurred.")
+    return InternalServerError(saveMessage)
 }
 
 module.exports = {mapErrorNameToPreset}
