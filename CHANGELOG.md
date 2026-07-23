@@ -1,17 +1,46 @@
-# Changelog
+# ds-express-errors Changelog
 
 All notable changes to this project will be documented in this file.
+> Date format: **year-mm-dd**
 
-## [1.8.1] – 2026-01-12 (latest)
+## [1.9.0] – 2026-07-23 (latest)
+
+- Added strict error checks for `Prisma` and `Sequelize` using instanceof
+- Configuration property `errorClasses` now support `Prisma` and `Sequelize`
+- Fixed ESM import error
+- Fixed `PrismaClientInitializationError` detection
+- Improved `SequelizeConnectionError` detection. It now distinguishes between: 
+  - `SequelizeConnectionRefusedError`
+  - `SequelizeHostNotFoundError`
+  - `SequelizeHostNotReachableError`
+  - `SequelizeAccessDeniedError`
+- Improved `Prisma` and `Sequelize` mappers log output. New development output format: 
+> [!TIP] NEW
+> **Library Name** (**code** if Prisma): [**error name** (example: SequelizeAccessDeniedError)] then **message**...
+
+
+---
+
+## [1.8.2] – 2026-03-15
+
+- Fixed missing api import for `gracefulHttpClose`
+- Improved internal safety checks.
+- Added additional internal checks for `gracefulHttpClose`, `initGlobalHandlers`, `setConfig`
+- Added colors highlights for logger
+- Expanded internal tests
+
+---
+
+## [1.8.1] – 2026-01-12
 
 - Fixed missing api import for logDebug 
-- `maxLoggerRequests ` new property in config to set maximal log rate requets per 1 minute (default 100)
+- `maxLoggerRequests ` new property in config to set maximal log rate requests per 1 seconds (default 100)
 - Added check for BigInt for internal safeStringify method 
 - Fixed incorrect status code in mongoose mapper
 - Fixed incorrect status code in sequelize mapper
 - Logger refactor for `customLogger`
 - Added `Errors.GatewayTimeout(message)`
-- Fix mapping sequileze now correct map: 
+- Fix mapping sequelize now correct map: 
   -  `SequelizeOptimisticLockError`,  
   -  `SequelizeEmptyResultError`, 
   -  `SequelizeDatabaseError`,

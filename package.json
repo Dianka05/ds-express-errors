@@ -6,7 +6,8 @@
   "exports": {
     ".": {
       "types": "./index.d.ts",
-      "require": "./index.js"
+      "require": "./index.js",
+      "import": "./index.js"
     }
   },
   "scripts": {
@@ -18,7 +19,8 @@
     "url": "git+https://github.com/Dianka05/ds-express-errors.git"
   },
   "bugs": {
-    "url": "https://github.com/Dianka05/ds-express-errors/issues"
+    "url": "https://github.com/Dianka05/ds-express-errors/issues",
+    "email": "report@ds-express-errors.dev"
   },
   "homepage": "https://ds-express-errors.dev",
   "keywords": [
@@ -43,7 +45,10 @@
     "pino support",
     "winston support"
   ],
-  "author": "Diana Stoyka",
+  "author": {
+    "name": "Diana Stoyka",
+    "email": "contact@ds-express-errors.dev"
+  },
   "license": "MIT",
   "engines": {
     "node": ">=14.0.0"

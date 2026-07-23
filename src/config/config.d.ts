@@ -6,9 +6,31 @@ export interface ConfigOptions {
     isDev: boolean
 }
 
+type ErrorConstructor = new (...args: any[]) => Error;
+
+export interface SequelizeErrorClasses {
+  ValidationError?: ErrorConstructor;
+  ForeignKeyConstraintError?: ErrorConstructor;
+  UniqueConstraintError?: ErrorConstructor;
+  OptimisticLockError?: ErrorConstructor;
+  EmptyResultError?: ErrorConstructor;
+
+  DatabaseError?: ErrorConstructor;
+  TimeoutError?: ErrorConstructor;
+
+  ConnectionError?: ErrorConstructor;
+  ConnectionRefusedError?: ErrorConstructor;
+  HostNotFoundError?: ErrorConstructor;
+  HostNotReachableError?: ErrorConstructor;
+  AccessDeniedError?: ErrorConstructor;
+  ConnectionAcquireTimeoutError?: ErrorConstructor;
+  ConnectionTimedOutError?: ErrorConstructor;
+}
+
 export interface ErrorClasses {
     Zod?: { ZodError: new (...args: any[]) => Error }
     Joi?: { ValidationError: new (...args: any[]) => Error }
+    Sequelize?: SequelizeErrorClasses;
 }
 
 export interface Logger {
