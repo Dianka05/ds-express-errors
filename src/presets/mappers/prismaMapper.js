@@ -6,9 +6,11 @@ const { BadRequest, Conflict, NotFound, ServiceUnavailable, InternalServerError 
 
 const prismaMapper = (err, req) => {
     const isDevEnvironment = checkIsDev()
+    const code = err.code ?? err.errorCode;
+
     const isPrisma = (err.clientVersion && typeof err.clientVersion === 'string')
       || (err?.name && err?.name.startsWith('Prisma'))
-      || (err.code && /^P\d{4}$/.test(err.code))
+      || (code && /^P\d{4}$/.test(code))
 
     if(isPrisma) {
         const {target, field_name } = err.meta || {}
@@ -30,12 +32,12 @@ const prismaMapper = (err, req) => {
 
         else formattedDetail = "Unknown Prisma error detail";
 
-        const hasCode = Boolean(err?.code)
-        const formattedMessage = `${hasCode ? prismaCodes[err.code]?.dev : ''}: ${formattedDetail}`
+        const hasCode = Boolean(code)
+        const formattedMessage = `${hasCode ? prismaCodes[code]?.dev : ''}: ${formattedDetail}`
 
         checkIsDebug() && logDebug(`Prisma error: ${formattedMessage}`, req)
 
-        const prismaError = prismaCodes[err.code]
+        const prismaError = prismaCodes[code]
 
         if (prismaError) {
             const handler = prismaCodeToHttpHandler[prismaError.status]
