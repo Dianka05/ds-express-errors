@@ -1,4 +1,4 @@
-const { checkIsDev } = require("../../config/config");
+const { checkIsDev, getConfig } = require("../../config/config");
 const { checkIsDebug } = require("../../config/config");
 const HttpStatus = require("../../constants/httpStatus");
 const { logDebug } = require("../../logger/logger");
@@ -6,6 +6,15 @@ const { BadRequest, Conflict, NotFound, ServiceUnavailable, InternalServerError 
 
 const prismaMapper = (err, req) => {
     const isDevEnvironment = checkIsDev()
+
+    //
+    const prismaClass = getConfig()?.errorClasses?.Prisma;
+
+    if (prismaClass) {
+      return sendResponseForMappedError(prismaClass, err, req)
+    }
+
+    // If config errorClasses NOT defined
     const code = err.code ?? err.errorCode;
 
     const isPrisma = (err.clientVersion && typeof err.clientVersion === 'string')
@@ -47,6 +56,34 @@ const prismaMapper = (err, req) => {
             }
         }
 
+    }
+}
+
+// If config errorClasses defined
+const sendResponseForMappedError = (prisma, err, req) => {
+    const isDevEnvironment = checkIsDev()
+    const { message } = err
+    let formattedDetail;
+
+    const textFn = message.match(/`([^`]+)`/)
+
+    if (err.meta) {
+      formattedDetail 
+        = Object.entries(err.meta).map(([key, value]) => `{ ${key}: ${value} }`).join("; ")
+    }
+    else if (!err.meta && message) formattedDetail = message
+    else formattedDetail = "Unknown Prisma error detail";
+    const code = err?.code || err?.errorCode
+    const hasCode = Boolean(code)
+    const formattedMessage = `${hasCode ? prismaCodes[code]?.dev : ''}: ${formattedDetail} \n${textFn ? `${err instanceof prisma.PrismaClientInitializationError ? 'Host: ' : 'Operation:'} \`${textFn[1]}\`` : ''}`
+    const prismaError = prismaCodes[code]
+
+    if (prismaError) {
+      const handler = prismaCodeToHttpHandler[prismaError.status]
+
+      if (handler) {
+        return handler(isDevEnvironment ? `Prisma ${code}: [${err.name}] ${formattedMessage}` : prismaError.prod)
+      }
     }
 }
 
