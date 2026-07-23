@@ -1,7 +1,7 @@
 # 📦 DS Express Errors ![NPM Downloads](https://img.shields.io/npm/d18m/ds-express-errors?style=for-the-badge&labelColor=%232196f3&color=gray)
 
 
-**DS Express Errors** is library for standardizing error handling in Node.js applications built with Express.  
+**DS Express Errors** is a library for standardizing error handling in Node.js applications built with Express.  
 It provides ready-to-use error classes (HTTP Presets), a centralized error handler (middleware), automatic: database error mapping (Mongoose, Prisma, Sequelize), validation error mapping (Zod, Joi, express-validator), JWT and built-in simple logging or custom loggers (Winston/Pino).
 
 --- 
@@ -34,7 +34,13 @@ npm install ds-express-errors
 
 ## 🛠 Integration
 
-Add errorHandler at the end of your Express middleware chain.
+Add `errorHandler` at the end of your Express middleware chain.
+
+```js
+const { errorHandler } = require('ds-express-errors');
+```
+
+**Example:**
 
 ```js
 const express = require('express');
@@ -49,6 +55,13 @@ app.use(errorHandler);
 
 app.listen(3000, () => console.log('Server running...'));
 ```
+
+> [!warning] Warning
+> If you use only `errorHandler` the library would perform only duck-typing checks.
+
+> [!question] Want strict checks?
+> Visit `Configuration part`. There you will find config property **errorClasses**.
+
 
 ---
 
@@ -78,18 +91,7 @@ app.get('/users/:id', async (req, res, next) => {
 });
 ```
 
-### 2. Using `AppError` (Custom Errors)
-
-Create specific errors using the AppError class:
-
-```js
-const { AppError } = require('ds-express-errors');
-
-// (message, statusCode, isOperational)
-throw new AppError('Custom payment gateway error', 402, true);
-```
-
-### 3. Async Function Wrapper (asyncHandler)
+### 2. Async Function Wrapper (asyncHandler)
 
 Avoid repetitive try/catch in every controller.
 
@@ -98,11 +100,22 @@ const { Errors, asyncHandler } = require('ds-express-errors');
 
 const getUser = asyncHandler(async (req, res, next) => {
     const data = await database.query();
-    if (!data) throw Errors.BadRequest('No data');
+    if (!data) return next(Errors.BadRequest('No data'));
     res.json(data);
 });
 
 app.get('/data', getUser);
+```
+
+### 3. Using `AppError` (Custom Errors)
+
+Create specific errors using the AppError class:
+
+```js
+const { AppError } = require('ds-express-errors');
+
+// (message, statusCode, isOperational)
+throw new AppError('Custom payment gateway error', 402, true);
 ```
 
 ### 4. Global Process Handlers (Graceful Shutdown)
@@ -204,6 +217,9 @@ const { setConfig, errorHandler } = require('ds-express-errors');
 const logger = require('./utils/logger'); // Your Winston/Pino logger
 const z = require('zod');
 const Joi = require('joi');
+const { Sequelize } = require('sequelize');
+
+const { PrismaClient, Prisma  } = require('@prisma/client');
 // Optional: Customize response format and Logger
 setConfig({
     // (OPTIONAL)
@@ -212,19 +228,21 @@ setConfig({
     // From version v1.8.0+
     // (OPTIONAL) You can replace default ds-express-errors check (duck-typing) to more strict by passing error class
 
-    // For now is avaliable only Zod, Joi
+    // For now is available only Zod, Joi, Sequelize, Prisma
     errorClasses: {
       Zod: z,
-      Joi: Joi
+      Joi: Joi,
+      Prisma,
+      Sequelize
     },
 
-    // (OPTIONAL) By defalt  ds-express-errors use all avaliable mapper, but from v1.8.0+ you can choose only needed mappers
+    // (OPTIONAL) By default  ds-express-errors use all available mapper, but from v1.8.0+ you can choose only needed mappers
     // Mappers ['zod', 'joi', 'mongoose', 'prisma', 'sequelize', 'expressValidator']
-    needMappers: ['zod', 'joi', 'prisma'], // (In this example) For now library would map only ['zod', 'joi', 'prisma'] errors, other would be `InternalServerError` or if is specifieds `customMappers` it would use that response
+    needMappers: ['zod', 'joi', 'prisma'], // (In this example) For now library would map only ['zod', 'joi', 'prisma'] errors, other would be `InternalServerError` or if is specified `customMappers` it would use that response
 
     // ----
     
-    // (OPTIONAL) Set prefered log rate per 1 minute
+    // (OPTIONAL) Set preferred log rate per 1 minute
     maxLoggerRequests: 1000,
 
     // (OPTIONAL) Define your custom mappers and ds-express-errors would use them first
@@ -341,7 +359,7 @@ let config = {
 - **Validation Libraries:** `ZodError` (Zod), `ValidationError` (Joi) — automatically formatted into readable messages.
 - **Mongoose / MongoDB:** `CastError`, `DuplicateKeyError` (code 11000), `ValidationError`, `MongoServerError` is handled (400 for bad JSON body, 500 for code errors, 409 colflict).
 - **Prisma:** `PrismaClientKnownRequestError`, `PrismaClientUnknownRequestError`, `PrismaClientRustPanicError`, `PrismaClientInitializationError`, `PrismaClientValidationError`
-- **Sequelize:** `SequelizeUniqueConstraintError`, `SequelizeValidationError`, `SequelizeForeignKeyConstraintError`, `SequelizeOptimisticLockError`, `SequelizeEmptyResultError`, `SequelizeDatabaseError`, `SequelizeConnectionError`, `SequelizeTimeoutError`
+- **Sequelize:** `SequelizeUniqueConstraintError`, `SequelizeValidationError`, `SequelizeForeignKeyConstraintError`, `SequelizeOptimisticLockError`, `SequelizeEmptyResultError`, `SequelizeDatabaseError`, `SequelizeConnectionError`, `SequelizeTimeoutError`, `SequelizeConnectionRefusedError`, `SequelizeHostNotFoundError`, `SequelizeHostNotReachableError`, `SequelizeAccessDeniedError`
 - **JS Native:** `ReferenceError`, `TypeError` → mapped to `500`. `SyntaxError` is handled (400 for bad JSON body, 500 for code errors).
 
 ---
@@ -357,15 +375,25 @@ let config = {
 | **P2007**  | Data validation error: ... | Invalid reference     | 400         |
 | **P2011**  | Foreign key constraint failed: ... | Invalid request data    | 400         |
 | **P2014**  | Required relation violation: ...   | Invalid relation      | 400         |
-| **P2015**  | Null constraint violation: ...      | Required data is missing    | 404         |
+| **P2015**  | A related record could not be found: ...      | Requested resource not found    | 404         |
 | **P2021**  | Table does not exist: ...          | Internal server error | 500         |
 | **P2022**  | Column does not exist: ...         | Internal server error | 500         |
 | **P2025**  | Record not found: ...              | Resource not found    | 404         |
-| **P2027**  | Foreign key constraint failed: ... | Invalid reference     | 500         |
+| **P2027**  | Multiple errors occurred on the database during query execution: ... | Internal server error     | 500         |
 | **P1001**  | Cannot reach database: ...         | Service unavailable   | 503         |
 | **P1002**  | Database timeout: ...              | Service unavailable   | 503         |
-| **P1003**  | Database does not exist: ...       | Internal server error | 500         |
+| **P1003**  | Database does not exist: ...       | Internal server error | 500         
 
+> [!example] Example Prisma output for dev
+> ```
+> [2026-07-23T12:01:34.442Z] POST /prisma/p2003 
+> MESSAGE: Prisma P2003: [PrismaClientKnownRequestError] Foreign key constraint failed: { modelName: Post }; { field_name: Post_authorId_fkey (index) }  Operation: `prisma.post.create()` 
+> StatusCode: 400 
+> Stack: Error: Prisma P2003: [PrismaClientKnownRequestError] Foreign key constraint failed: { modelName: Post }; { field_name: Post_authorId_fkey (index) } 
+> Operation: `prisma.post.create()`
+> at BadRequest C:\...
+> Operational: true
+> ```
 
 ## Supported Sequelize errors:
 
@@ -379,8 +407,20 @@ let config = {
 | **SequelizeDatabaseError** | Database error occurred | 500 |
 | **SequelizeConnectionError** | Database connection error occurred | 503 |
 | **SequelizeTimeoutError** | Database timeout error occurred | 504 |
+| **SequelizeConnectionRefusedError** | Database connection error occurred | 503 |
+| **SequelizeHostNotFoundError** | Database connection error occurred | 503 |
+| **SequelizeHostNotReachableError** | Database connection error occurred | 503 |
+| **SequelizeAccessDeniedError** | Database connection error occurred | 503 |
 
-
+> [!example] Example Sequelize output for dev
+> ```
+> [2026-07-23T13:02:44.783Z] POST /sequelize/unique-constraint 
+> MESSAGE: Sequelize: [UniqueConstraintError]: sku must be unique 
+> StatusCode: 409 
+> Stack: Error: Sequelize: [UniqueConstraintError]: sku must be unique
+> at Conflict C:...
+> Operational: true
+> ```
 
 ## 📝 Example Client Response
 
