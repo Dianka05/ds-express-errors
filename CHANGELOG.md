@@ -3,7 +3,13 @@
 All notable changes to this project will be documented in this file.
 > Date format: **year-mm-dd**
 
-## [1.9.0] – 2026-07-23 (latest)
+## [1.9.1] – 2026-08-13 (latest)
+- Fixed missing types (config.d.ts) for `errorClasses` (Prisma)
+- Added missing types (presets.d.ts, index.d.ts) for `GatewayTimeout` and `UnprocessableContent`
+
+---
+
+## [1.9.0] – 2026-07-23
 
 - Added strict error checks for `Prisma` and `Sequelize` using instanceof
 - Configuration property `errorClasses` now support `Prisma` and `Sequelize`
@@ -17,7 +23,6 @@ All notable changes to this project will be documented in this file.
 - Improved `Prisma` and `Sequelize` mappers log output. New development output format: 
 > [!TIP] NEW
 > **Library Name** (**code** if Prisma): [**error name** (example: SequelizeAccessDeniedError)] then **message**...
-
 
 ---
 
