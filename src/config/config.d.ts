@@ -27,10 +27,20 @@ export interface SequelizeErrorClasses {
   ConnectionTimedOutError?: ErrorConstructor;
 }
 
+export interface PrismaErrorClasses {
+  PrismaClientKnownRequestError?: ErrorConstructor;
+  PrismaClientUnknownRequestError?: ErrorConstructor;
+  PrismaClientRustPanicError?: ErrorConstructor;
+  PrismaClientInitializationError?: ErrorConstructor;
+  PrismaClientValidationError?: ErrorConstructor;
+}
+
+
 export interface ErrorClasses {
     Zod?: { ZodError: new (...args: any[]) => Error }
     Joi?: { ValidationError: new (...args: any[]) => Error }
     Sequelize?: SequelizeErrorClasses;
+    Prisma?: PrismaErrorClasses;
 }
 
 export interface Logger {
