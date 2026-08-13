@@ -19,4 +19,6 @@ export const Errors: {
     NotImplemented(message?: string): AppError
     BadGateway(message?: string): AppError
     ServiceUnavailable(message?: string): AppError
+    UnprocessableContent(message?: string): AppError
+    GatewayTimeout(message?: string): AppError
 }
