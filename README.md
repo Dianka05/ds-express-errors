@@ -40,6 +40,16 @@ Add `errorHandler` at the end of your Express middleware chain.
 const { errorHandler } = require('ds-express-errors');
 ```
 
+If you need examples in ESM not commonjs please visit [ds-express-errors](https://ds-express-errors.dev/docs)
+
+> [!WARNING]
+> #### **Good to know**
+> If you use only `errorHandler` the library would perform only duck-typing checks.
+
+> [!TIP]
+> #### **Want strict checks?**  
+> Visit the [Configuration](https://ds-express-errors.dev/docs/detailed-info/configuration) section. There you will find the **`errorClasses`** config property.
+
 **Example:**
 
 ```js
@@ -56,11 +66,13 @@ app.use(errorHandler);
 app.listen(3000, () => console.log('Server running...'));
 ```
 
-> [!warning] Warning
-> If you use only `errorHandler` the library would perform only duck-typing checks.
 
-> [!question] Want strict checks?
-> Visit `Configuration part`. There you will find config property **errorClasses**.
+
+> [!IMPORTANT]
+> #### **About Environment and Prod vs Dev Responses**
+> By default, the library relies on the `NODE_ENV` environment variable to format error responses.
+> To see how Production and Development responses differ, visit the [Configuration](https://ds-express-errors.dev/docs/detailed-info/configuration)
+> See the `devEnvironments` property to customize this behavior.
 
 
 ---
@@ -125,6 +137,10 @@ You can explicitly enable handling of global errors (`uncaughtException`, `unhan
 **Basic Usage:**
 Logs the error and exits (`process.exit(1)`).
 
+> [!TIP]
+> #### **More detailed information**    
+> Visit the [Global Handlers and Graceful Shutdown](https://ds-express-errors.dev/docs/detailed-info/graceful-shutdown).
+
 ```js
 const { initGlobalHandlers } = require('ds-express-errors');
 
@@ -167,6 +183,12 @@ initGlobalHandlers({
 });
 ```
 
+> [!IMPORTANT]
+> #### **Be aware**
+> `initGlobalHandlers` can only be called once. Calling it again will throw a `GlobalHandlerAlreadySet` error.  
+>
+> `GlobalHandlerAlreadySet` is an internal ds-express-errors error with the code `ERR_DS_EXPRESS_ERRORS_GLOBAL_HANDLER_ALREADY_SET`.
+
 ---
 
 ## 📋 Available Error Presets
@@ -189,6 +211,10 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
 | `Errors.ServiceUnavailable(message)` | 503 | Service Unavailable |
 | `Errors.GatewayTimeout(message)` | 504 | Gateway Timeout |
 
+> [!TIP]
+> #### **More detailed information**    
+> Visit the [API REFERENCES](https://ds-express-errors.dev/docs/api-reference).
+
 ---
 
 ## ⚙️ Configuration & Environment Variables
@@ -200,6 +226,12 @@ All methods are available via the `Errors` object. Default `isOperational` is `t
   You can define your own dev environment name using `setConfig`
 
 
+> [!IMPORTANT]
+> #### **About Environment and Prod vs Dev Responses**
+> *If `NODE_ENV` is not defined, you will receive sanitised error messages, as the library behaves as if the environment were set to production.*
+> To see how Production and Development responses differ, visit the [Configuration](https://ds-express-errors.dev/docs/detailed-info/configuration)
+> See the `devEnvironments` property to customize which environments should display full error information (stack traces and full error messages).
+
 ### ⚙️ Configuration
 
 - `DEBUG=true` — outputs extra debug info about error mapping (`mapErrorNameToPreset`)  
@@ -210,7 +242,14 @@ Also you can customize dev environment by using `devEnvironments: []`
 
 Use `setConfig` before initializing the error handler middleware.
 
-> **Important:** `customMappers` must be synchronous. Async function or Promise are not supported and will be ignored.
+> [!IMPORTANT]
+> #### **Be aware**
+> `setConfig` can only be called once. Calling it again will throw a `ConfigAlreadySet` error.
+>
+> `ConfigAlreadySet` is an internal ds-express-errors error with the code `ERR_DS_EXPRESS_ERRORS_CONFIG_ALREADY_SET`.
+
+> [!IMPORTANT]
+> `customMappers` must be synchronous. Async function or Promise are not supported and will be ignored.
 
 ```javascript
 const { setConfig, errorHandler } = require('ds-express-errors');
@@ -292,7 +331,7 @@ By default if you not set `customLogger` in `setConfig` library used his own log
 ### 🔌 Custom Logger
 
 You can connect your own logger (like Winston, Pino) instead of the built-in console logger.
-The object must support 4 methods: `error`, `warn`, `info`, `debug`.
+The object **must** support 4 methods: `error`, `warn`, `info`, `debug`.
 
 ```javascript
 const { setConfig } = require('ds-express-errors');
@@ -320,8 +359,12 @@ If no config is provided, the library uses the default format:
   "message": "Error description",
   "stack": // showed when NODE_ENV= development or dev
 }
-
 ```
+
+> [!TIP]
+> #### **Want a custom response format?**
+> Define the `formatError` property in `setConfig`.
+> More in [Configuration](https://ds-express-errors.dev/docs/detailed-info/configuration)
 
 **Default Config Format**
 
@@ -368,12 +411,12 @@ let config = {
 | ---------- | ----------------------------- | --------------------- | ----------- |
 | **P2000**  | Value too long for column: ...     | Invalid input value         | 400         |
 | **P2001**  | Record does not exist: ...         | Resource not found    | 404         |
-| **P2002**  | Unique constraint failed: ...      | Conflict              | 409         |
+| **P2002**  | Unique constraint failed: ...      | Resource already exists              | 409         |
 | **P2003**  | Foreign key constraint failed: ... | Invalid reference     | 400         |
-| **P2005**  | The value stored in the database for the field is invalid for the field's type: ... | Invalid data provided     | 400         |
+| **P2005**  | The value stored in the database for the field is invalid for the field's type: ... | Invalid data     | 400         |
 | **P2006**  | The provided value for the field is not valid: ... | Invalid input value     | 400         |
 | **P2007**  | Data validation error: ... | Invalid reference     | 400         |
-| **P2011**  | Foreign key constraint failed: ... | Invalid request data    | 400         |
+| **P2011**  | Null constraint violation: ... | Required value is missing    | 400         |
 | **P2014**  | Required relation violation: ...   | Invalid relation      | 400         |
 | **P2015**  | A related record could not be found: ...      | Requested resource not found    | 404         |
 | **P2021**  | Table does not exist: ...          | Internal server error | 500         |
@@ -384,7 +427,8 @@ let config = {
 | **P1002**  | Database timeout: ...              | Service unavailable   | 503         |
 | **P1003**  | Database does not exist: ...       | Internal server error | 500         
 
-> [!example] Example Prisma output for dev
+> [!NOTE] 
+> #### **Example Prisma output for dev:**
 > ```
 > [2026-07-23T12:01:34.442Z] POST /prisma/p2003 
 > MESSAGE: Prisma P2003: [PrismaClientKnownRequestError] Foreign key constraint failed: { modelName: Post }; { field_name: Post_authorId_fkey (index) }  Operation: `prisma.post.create()` 
@@ -399,9 +443,9 @@ let config = {
 
 | Error Code / Type | Prod Message | HTTP Status |
 |------------------|-------------|-------------|
-| **SequelizeValidationError** | validation error | 400 |
+| **SequelizeValidationError** |  email must be unique | 400 |
 | **SequelizeUniqueConstraintError** | Resource already exists | 409 |
-| **SequelizeForeignKeyConstraintError** | invalid references | 409 |
+| **SequelizeForeignKeyConstraintError** | Invalid reference | 409 |
 | **SequelizeOptimisticLockError** | Resource conflict occurred | 409 |
 | **SequelizeEmptyResultError** | Resource not found | 404 |
 | **SequelizeDatabaseError** | Database error occurred | 500 |
@@ -412,7 +456,8 @@ let config = {
 | **SequelizeHostNotReachableError** | Database connection error occurred | 503 |
 | **SequelizeAccessDeniedError** | Database connection error occurred | 503 |
 
-> [!example] Example Sequelize output for dev
+> [!NOTE]
+> #### **Example Sequelize output for dev:**
 > ```
 > [2026-07-23T13:02:44.783Z] POST /sequelize/unique-constraint 
 > MESSAGE: Sequelize: [UniqueConstraintError]: sku must be unique 
