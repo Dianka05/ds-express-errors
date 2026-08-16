@@ -644,6 +644,61 @@ describe('DS Express Errors Library', () => {
             })
         })
 
+        describe('Prisma Error Handler - Production', () => {
+            const originalNodeEnv = process.env.NODE_ENV
+
+            beforeAll(() => {
+                process.env.NODE_ENV = 'production'
+            })
+
+            afterAll(() => {
+                process.env.NODE_ENV = originalNodeEnv
+            })
+
+            test.each([
+                ['P2000', 400, 'Invalid input value'],
+                ['P2001', 404, 'Resource not found'],
+                ['P2002', 409, 'Resource already exists'],
+                ['P2003', 400, 'Invalid reference'],
+                ['P2005', 400, 'Invalid data'],
+                ['P2006', 400, 'Invalid input value'],
+                ['P2007', 400, 'Invalid request data'],
+                ['P2011', 400, 'Required value is missing'],
+                ['P2014', 400, 'Invalid relation'],
+                ['P2015', 404, 'Requested resource not found'],
+                ['P2025', 404, 'Requested resource not found'],
+                ['P2027', 500, 'Internal server error'],
+                ['P2021', 500, 'Internal server error'],
+                ['P2022', 500, 'Internal server error'],
+                ['P1001', 503, 'Service unavailable'],
+                ['P1002', 503, 'Service unavailable'],
+                ['P1003', 500, 'Internal server error'],
+            ])('should map Prisma %s error in production', (code, status, message) => {
+                const prismaError = {
+                    code,
+                    clientVersion: '5.7.0',
+                    message: 'Sensitive Prisma error details',
+                    meta: {
+                        target: ['email', 'age'],
+                        field_name: 'userId',
+                        relation: 'posts',
+                        table: 'User',
+                        column: 'age',
+                        cause: 'Record to update not found.'
+                    }
+                }
+
+                errorHandler(prismaError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(status)
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        message: expect.stringContaining(message)
+                    })
+                )
+            })
+        })
+
         describe('Express Validator Error Handler', () => {
             test('should map Express-Validator `FieldValidationError` Error', () => {
                
@@ -735,6 +790,117 @@ describe('DS Express Errors Library', () => {
             })
         })
 
+        describe('Express Validator Error Handler - Production', () => {
+            const originalNodeEnv = process.env.NODE_ENV
+
+            beforeAll(() => {
+                process.env.NODE_ENV = 'production'
+            })
+
+            afterAll(() => {
+                process.env.NODE_ENV = originalNodeEnv
+            })
+
+            test('should map Express-Validator `FieldValidationError` Error in production', () => {
+                const expressValidatorError = {
+                    errors: [
+                        {
+                            type: 'field',
+                            location: 'body',
+                            path: 'email',
+                            value: 'invalid-email',
+                            msg: 'Invalid value'
+                        }
+                    ],
+                }
+
+                errorHandler(expressValidatorError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(422)
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        message: expect.stringContaining('Invalid value: email')
+                    })
+                )
+            })
+
+            test('should map Express-Validator `AlternativeValidationError` Error in production', () => {
+                const expressValidatorError = {
+                    errors: [
+                        {
+                            type: 'alternative',
+                            msg: 'Invalid value(s)',
+                            nestedErrors: [
+                                [{ type: 'field', path: 'phone', msg: 'Invalid value' }],
+                                [{ type: 'field', path: 'email', msg: 'Invalid value' }]
+                            ]
+                        }
+                    ]
+                }
+
+                errorHandler(expressValidatorError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(422)
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        message: expect.stringContaining('Invalid value(s): phone; email')
+                    })
+                )
+            })
+
+            test('should map Express-Validator `GroupedAlternativeValidationError` Error in production', () => {
+                const expressValidatorError = {
+                    errors: [
+                        {
+                            type: 'alternative_grouped',
+                            msg: 'Invalid value',
+                            nestedErrors: [
+                                [{ type: 'field', path: 'phone' }],
+                                [{ type: 'field', path: 'email' }]
+                            ]
+                        }
+                    ]
+                }
+
+                errorHandler(expressValidatorError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(422)
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        message: expect.stringContaining('Invalid value: phone; email')
+                    })
+                )
+            })
+
+            test('should map Express-Validator `UnknownFieldsError` Error in production', () => {
+                const expressValidatorError = {
+                    errors: [
+                        {
+                            type: 'unknown_fields',
+                            msg: 'Unknown field(s)',
+                            nestedErrors: [
+                                [{ path: 'extraField', location: 'body', value: 'someValue' }]
+                            ]
+                        }
+                    ]
+                }
+
+                errorHandler(expressValidatorError, req, res, next)
+
+                expect(res.status).toHaveBeenCalledWith(400)
+                expect(res.json).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        message: expect.stringContaining('Unknown field(s): extraField')
+                    })
+                )
+
+                expect(res.json).not.toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        message: expect.stringContaining('someValue')
+                    })
+                )
+            })
+        })
 
         describe('Syntax Error', () => {
 
@@ -785,17 +951,17 @@ describe('DS Express Errors Library', () => {
                 }));
             });
 
-            test('should hide detailed Mongoose validation errors in production', () => {
-                const mongooseValidationError = {
-                    name: "ValidationError",
+            test('should hide detailed Mongoose cast errors in production', () => {
+                const mongooseCastError = {
+                    name: "CastError",
                     errors: {
-                        email: { message: "Internal Validator Failed", value: "sensitive_data" }
+                        email: { message: "Invalid value provided", value: "sensitive_data" }
                     }
                 };
-                errorHandler(mongooseValidationError, req, res, next);
+                errorHandler(mongooseCastError, req, res, next);
 
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: 'validation error' 
+                    message: 'Invalid value provided' 
                 }));
             });
 
