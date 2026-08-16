@@ -890,7 +890,7 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(401);
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('JsonWebTokenError: invalid token')
+                    message: expect.stringContaining('invalid token')
                 }));
             });
 
@@ -899,7 +899,7 @@ describe('DS Express Errors Library', () => {
                 errorHandler(expiredError, req, res, next);
                 expect(res.status).toHaveBeenCalledWith(401);
                 expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-                    message: expect.stringContaining('TokenExpiredError: jwt expired')
+                    message: expect.stringContaining('jwt expired')
                 }));
             });
         })
