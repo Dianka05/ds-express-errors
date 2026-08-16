@@ -979,7 +979,7 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(409);
                 expect(res.json).toHaveBeenCalledWith({
-                    message: 'invalid references',
+                    message: 'Invalid reference',
                     status: "fail"
                 });
             });
