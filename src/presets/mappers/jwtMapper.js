@@ -9,7 +9,7 @@ const jwtMapper = (err) => {
         return Unauthorized(isDevEnvironment ? `[JsonWebTokenError]: ${message}` : 'Session expired. Please log in again.')
     }
     if (name === 'TokenExpiredError') {
-        return Unauthorized(isDevEnvironment ? `[TokenExpiredError]: ${message}` : 'Authentication failed.')
+        return Unauthorized(isDevEnvironment ? `[TokenExpiredError]: ${message}` : 'Authentication token has expired')
     }
     if (name === 'NotBeforeError') {
         return Unauthorized(isDevEnvironment ? `[NotBeforeError]: ${message}` : 'Invalid token visualization.')
