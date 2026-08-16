@@ -57,10 +57,6 @@ const presetErrors = {
     'BadRequest': BadRequest,
     
     // 401
-    'JsonWebTokenError': Unauthorized,
-    'TokenExpiredError': Unauthorized,
-    'NotBeforeError': Unauthorized,
-    'UnauthorizedError': Unauthorized,
     'Unauthorized': Unauthorized,
 
     // 402
