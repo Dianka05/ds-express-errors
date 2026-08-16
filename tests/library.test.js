@@ -1021,7 +1021,7 @@ describe('DS Express Errors Library', () => {
 
                 expect(res.status).toHaveBeenCalledWith(400);
                 expect(res.json).toHaveBeenCalledWith({
-                    message: 'validation error',
+                    message: 'email is invalid',
                     status: "fail"
                 });
             });
