@@ -3,7 +3,17 @@
 All notable changes to this project will be documented in this file.
 > Date format: **year-mm-dd**
 
-## [1.9.1] – 2026-08-13 (latest)
+## [1.9.2] – 2026-08-16 (latest)
+
+- Fixed excessive production response sanitization in `Zod` `Joi`, `express-validator`, `Mongoose`, `Prisma`, and `Sequelize` mappers
+- Added separate `JWT` mapper handling to prevent leaking sensitive JWT error details in production
+- Fixed incorrect TypeScript type for `needMappers`
+- Updated `README.md` documentation 
+- Expanded tests for production-safe mapper responses
+
+---
+
+## [1.9.1] – 2026-08-13
 - Fixed missing types (config.d.ts) for `errorClasses` (Prisma)
 - Added missing types (presets.d.ts, index.d.ts) for `GatewayTimeout` and `UnprocessableContent`
 
