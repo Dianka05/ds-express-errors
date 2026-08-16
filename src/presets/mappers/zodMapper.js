@@ -1,4 +1,3 @@
-const { checkIsDev } = require("../../config/config")
 const { config } = require("../../config/config")
 const { checkIsDebug } = require("../../config/config")
 const { logDebug } = require("../../logger/logger")
@@ -17,12 +16,11 @@ const zodMapper = (err, req) => {
 }
 
 const sendResponseForMappedError = (err, req) => {
-    const isDevEnvironment = checkIsDev()
     const formattedMessages = getFormattedMessage(err)
 
     checkIsDebug() && logDebug(`Zod validation error issues: ${formattedMessages}`, req)
 
-    return BadRequest(`Validation error: ${isDevEnvironment ? formattedMessages : 'validation error'}`)
+    return BadRequest(`[Validation error]: ${formattedMessages}`)
 }
 
 const getFormattedMessage = (err) => {
