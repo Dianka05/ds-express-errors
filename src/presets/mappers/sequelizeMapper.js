@@ -69,7 +69,7 @@ const sequelizeMapper = (err, req) => {
             
         checkIsDebug() && logDebug(`Sequelize foreign key error: ${formattedMessage}`, req)
 
-        return Conflict(`${isDevEnvironment ? `${name}: ` + formattedMessage : 'invalid references'}`);
+        return Conflict(`${isDevEnvironment ? `${name}: ` + formattedMessage : 'Invalid reference'}`);
     } else if (isSequelizeValidationError ) {
         const formattedMessage = err.errors
             .map(error => error.message)
