@@ -14,9 +14,13 @@ const mongooseMapper = (err) => {
             .map(e => {
                 return `${e.message} = [Value]: "${e.value}"`
             }).join('; ')
-        return BadRequest(`${isDevEnvironment ? formattedMessage : 'validation error'}`)
+        const formattedMessageProd = Object.values(errors)
+            .map(e => {
+                return e.message
+            }).join('; ')
+        return BadRequest(`${isDevEnvironment ? formattedMessage : formattedMessageProd}`)
     } else if (name === 'CastError') {
-        return BadRequest(`${isDevEnvironment ? `${name}: ` + err.message : 'Invalid value provided '}`)
+        return BadRequest(`${isDevEnvironment ? `${name}: ` + err.message : 'Invalid value provided'}`)
     }
 }
 

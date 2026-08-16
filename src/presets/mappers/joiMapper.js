@@ -1,4 +1,3 @@
-const { checkIsDev } = require("../../config/config");
 const { config } = require("../../config/config");
 const { checkIsDebug } = require("../../config/config");
 const { logDebug } = require("../../logger/logger");
@@ -16,12 +15,11 @@ const joiMapper = (err, req) => {
 }
 
 const sendResponseForMappedError = (err, req) => {
-    const isDevEnvironment = checkIsDev()
     const formattedMessage = getFormattedMessage(err)
             
     checkIsDebug() && logDebug(`Joi validation error details: ${formattedMessage}`, req)
 
-    return BadRequest(`Validation Error: ${isDevEnvironment ? formattedMessage : 'validation error'}`, err.details);
+    return BadRequest('[Validation Error]: ' + formattedMessage);
 }
 
 const getFormattedMessage = (err) => {

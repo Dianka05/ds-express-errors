@@ -4,20 +4,20 @@ const { UnprocessableContent, BadRequest } = require("../presets")
 const expressValidatorMapper = (err) => {
     const isDevEnvironment = checkIsDev()
 
-    const isExpressValidatorError = err =>
+    const isExpressValidatorError = (err) =>
        err?.errors && Array.isArray(err.errors)
 
-    if (isExpressValidatorError) {
+    if (isExpressValidatorError(err)) {
         const { errors, message } = err
     
         const fError = Array.isArray(errors) ? errors[0] : null
 
         const {type, value, msg, path, nestedErrors  } = fError || {}
 
-        const isFieldValidationError = isExpressValidatorError && type === types.field
-        const isAlternativeValidationError = isExpressValidatorError && type === types.alternative
-        const isGroupedAlternativeValidationError = isExpressValidatorError && type === types.alternative_grouped
-        const isUnknownFieldsError = isExpressValidatorError && type === types.unknown_fields
+        const isFieldValidationError = type === types.field
+        const isAlternativeValidationError = type === types.alternative
+        const isGroupedAlternativeValidationError = type === types.alternative_grouped
+        const isUnknownFieldsError = type === types.unknown_fields
 
         const outputMessage = msg || message
         
@@ -25,7 +25,11 @@ const expressValidatorMapper = (err) => {
 
         if (nestedErrors && nestedErrors.length > 0) {
                 _errors = nestedErrors?.map(nestedError => {
-                    if (isUnknownFieldsError) return `path: ${nestedError[0]?.path}; location: ${nestedError[0]?.location}; value: ${nestedError[0]?.value}`
+                    if (isUnknownFieldsError) {
+                        if (isDevEnvironment) {
+                            return `path: ${nestedError[0]?.path}; location: ${nestedError[0]?.location}; value: ${nestedError[0]?.value}`
+                        } else return nestedError[0]?.path
+                    }
                     return `${nestedError[0]?.path}`
                 }).join('; ')
         } else if (path) {
@@ -35,11 +39,11 @@ const expressValidatorMapper = (err) => {
         }
     
         if (isFieldValidationError || isAlternativeValidationError || isGroupedAlternativeValidationError) {
-            return UnprocessableContent(isDevEnvironment ? outputMessage + `: ${(_errors || value) || ('')}` : 'Unprocessable Content')
+            return UnprocessableContent(isDevEnvironment ? outputMessage + `: ${(_errors || value) || ('')}` : outputMessage + ': ' + _errors)
         }
     
         if (isUnknownFieldsError ) {
-            return BadRequest(isDevEnvironment ? outputMessage + `: ${_errors}` : 'Invalid input')
+            return BadRequest(outputMessage + ': ' + _errors)
         }
 
     }

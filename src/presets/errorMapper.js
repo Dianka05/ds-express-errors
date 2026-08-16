@@ -8,6 +8,7 @@ const { expressValidatorMapper } = require("./mappers/expressValidatorMapper")
 const { joiMapper } = require("./mappers/joiMapper")
 const { mongooseMapper } = require("./mappers/mongooseMapper")
 const { nameMapper } = require("./mappers/nameMapper")
+const { jwtMapper } = require("./mappers/jwtMapper")
 const { prismaMapper } = require("./mappers/prismaMapper")
 const { sequelizeMapper } = require("./mappers/sequelizeMapper")
 const { zodMapper } = require("./mappers/zodMapper")
@@ -20,6 +21,7 @@ const allMappers = {
     prisma: prismaMapper,
     sequelize: sequelizeMapper,
     expressValidator: expressValidatorMapper,
+    jwt: jwtMapper
 };
 
 const mapErrorNameToPreset = (err, req) => {
