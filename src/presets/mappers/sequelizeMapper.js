@@ -77,7 +77,7 @@ const sequelizeMapper = (err, req) => {
             
         checkIsDebug() && logDebug(`Sequelize validation error: ${formattedMessage}`, req)
 
-        return BadRequest(`${isDevEnvironment ? `${name}: ` + formattedMessage : 'validation error'}`);
+        return BadRequest(`${isDevEnvironment ? `${name}: ` + formattedMessage : formattedMessage}`);
     } else if (isSequelizeDatabaseError) {
         const formattedMessage = `SQL: ${err.sql}; Parent Code: ${err.parent.code}; ${message}`
             
