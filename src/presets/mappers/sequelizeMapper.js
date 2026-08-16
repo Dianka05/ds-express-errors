@@ -115,7 +115,7 @@ const sendResponseForMappedError = (sequelize, err, req) => {
 
         checkIsDebug() && logDebug(`Sequelize foreign key error: ${formattedMessage}`, req)
 
-        return Conflict(`Sequelize: [ForeignKeyConstraintError] ${isDevEnvironment ? formattedMessage : 'invalid references'}`);
+        return Conflict(`${isDevEnvironment ? 'Sequelize: [ForeignKeyConstraintError] - ' + formattedMessage : 'Invalid reference'}`);
     }
     else if (err instanceof sequelize.UniqueConstraintError) {
         const formattedMessage = err.errors
@@ -124,14 +124,14 @@ const sendResponseForMappedError = (sequelize, err, req) => {
 
         checkIsDebug() && logDebug(`Sequelize: ${formattedMessage}`, req)
 
-        return Conflict(`Sequelize: [UniqueConstraintError]: ${isDevEnvironment ? formattedMessage : 'Resource already exists'}`);
+        return Conflict(`${isDevEnvironment ? 'Sequelize: [UniqueConstraintError] - ' + formattedMessage : 'Resource already exists'}`);
     }
     else if (err instanceof sequelize.OptimisticLockError) {
         const formattedMessage = `Model: ${err.modelName}; Values: ${safeStringify(err.values)}; ${message}`
             
         checkIsDebug() && logDebug(`Sequelize optimistic lock error: ${formattedMessage}`, req)
 
-        return Conflict(`Sequelize: [OptimisticLockError] ${isDevEnvironment ? formattedMessage : 'Resource conflict occurred'}`);
+        return Conflict(`${isDevEnvironment ? 'Sequelize: [OptimisticLockError] - ' + formattedMessage : 'Resource conflict occurred'}`);
     }
     // 404
     else if (err instanceof sequelize.EmptyResultError) {
@@ -139,20 +139,20 @@ const sendResponseForMappedError = (sequelize, err, req) => {
             
         checkIsDebug() && logDebug(`Sequelize empty results error: ${formattedMessage}`, req)
 
-        return NotFound(`Sequelize: [EmptyResultError] ${isDevEnvironment ? formattedMessage : 'Resource not found'}`);
+        return NotFound(`${isDevEnvironment ? `Sequelize: [EmptyResultError] - ${formattedMessage}` : 'Resource not found'}`);
     }
     // 504
     else if (err instanceof sequelize.TimeoutError ) {
         const formattedMessage = message
         checkIsDebug() && logDebug(`Sequelize timeout error: ${formattedMessage}`, req)
 
-        return GatewayTimeout(`Sequelize: [TimeoutError] ${isDevEnvironment ? formattedMessage : 'Database timeout error occurred'}`);
+        return GatewayTimeout(`${isDevEnvironment ? 'Sequelize: [TimeoutError] - ' + formattedMessage : 'Database timeout'}`);
     }
     else if (err instanceof sequelize.ConnectionTimedOutError) {
         const formattedMessage = message
         checkIsDebug() && logDebug(`Sequelize timeout error: ${formattedMessage}`, req)
 
-        return GatewayTimeout(`Sequelize: [ConnectionTimedOutError] ${isDevEnvironment ? formattedMessage : 'Database timeout error occurred'}`);
+        return GatewayTimeout(`${isDevEnvironment ? 'Sequelize: [ConnectionTimedOutError] - ' + formattedMessage : 'Database timeout'}`);
     }
      // 500
     else if (err instanceof sequelize.DatabaseError) {
@@ -162,7 +162,7 @@ const sendResponseForMappedError = (sequelize, err, req) => {
             message;            
         checkIsDebug() && logDebug(`Sequelize database error: ${formattedMessage}`, req)
 
-        return InternalServerError(`Sequelize: [DatabaseError] ${isDevEnvironment ? formattedMessage : 'Database error occurred'}`);
+        return InternalServerError(`${isDevEnvironment ? 'Sequelize: [DatabaseError] - ' + formattedMessage : 'Database error occurred'}`);
     }
     // 400
      else if (err instanceof sequelize.ValidationError) {
@@ -172,7 +172,7 @@ const sendResponseForMappedError = (sequelize, err, req) => {
         
         checkIsDebug() && logDebug(`Sequelize: [ValidationError] ${formattedMessage}`, req)
 
-        return BadRequest(`Sequelize: [ValidationError] ${isDevEnvironment ? formattedMessage : 'validation error'}`);
+        return BadRequest(`${isDevEnvironment ? 'Sequelize: [ValidationError] - ' + formattedMessage : formattedMessage}`);
     } 
     // 503
     else if (err instanceof sequelize.ConnectionRefusedError ) {
@@ -180,42 +180,42 @@ const sendResponseForMappedError = (sequelize, err, req) => {
             
         checkIsDebug() && logDebug(`Sequelize connection error: ${formattedMessage}`, req)
 
-        return ServiceUnavailable(`Sequelize: [ConnectionRefusedError] ${isDevEnvironment ?  formattedMessage : 'Database connection error occurred'}`);
+        return ServiceUnavailable(`${isDevEnvironment ?  'Sequelize: [ConnectionRefusedError] - ' + formattedMessage : 'Database connection error occurred'}`);
     }
     else if (err instanceof sequelize.HostNotFoundError ) {
         const formattedMessage = message
             
         checkIsDebug() && logDebug(`Sequelize connection error: ${formattedMessage}`, req)
 
-        return ServiceUnavailable(`Sequelize: [HostNotFoundError] ${isDevEnvironment ?  formattedMessage : 'Database connection error occurred'}`);
+        return ServiceUnavailable(`${isDevEnvironment ? 'Sequelize: [HostNotFoundError] - ' + formattedMessage : 'Database connection error occurred'}`);
     }
     else if (err instanceof sequelize.HostNotReachableError ) {
         const formattedMessage = message
             
         checkIsDebug() && logDebug(`Sequelize connection error: ${formattedMessage}`, req)
 
-        return ServiceUnavailable(`Sequelize: [HostNotReachableError] ${isDevEnvironment ?  formattedMessage : 'Database connection error occurred'}`);
+        return ServiceUnavailable(`${isDevEnvironment ? 'Sequelize: [HostNotReachableError] - ' + formattedMessage : 'Database connection error occurred'}`);
     }
     else if (err instanceof sequelize.AccessDeniedError ) {
         const formattedMessage = message
             
         checkIsDebug() && logDebug(`Sequelize connection error: ${formattedMessage}`, req)
 
-        return ServiceUnavailable(`Sequelize: [AccessDeniedError] ${isDevEnvironment ?  formattedMessage : 'Database connection error occurred'}`);
+        return ServiceUnavailable(`${isDevEnvironment ? 'Sequelize: [AccessDeniedError] - ' + formattedMessage : 'Database connection error occurred'}`);
     }
     else if (err instanceof sequelize.ConnectionAcquireTimeoutError) {
         const formattedMessage = message
             
         checkIsDebug() && logDebug(`Sequelize connection error: ${formattedMessage}`, req)
 
-        return ServiceUnavailable(`Sequelize: [ConnectionAcquireTimeoutError] ${isDevEnvironment ?  formattedMessage : 'Database connection error occurred'}`);
+        return ServiceUnavailable(`${isDevEnvironment ? 'Sequelize: [ConnectionAcquireTimeoutError] - ' + formattedMessage : 'Database connection error occurred'}`);
     }
     else if (err instanceof sequelize.ConnectionError) {
         const formattedMessage = message
             
         checkIsDebug() && logDebug(`Sequelize connection error: ${formattedMessage}`, req)
 
-        return ServiceUnavailable(`Sequelize: [ConnectionError] ${isDevEnvironment ? formattedMessage : 'Database connection error occurred'}`);
+        return ServiceUnavailable(`${isDevEnvironment ? 'Sequelize: [ConnectionError] - ' + formattedMessage : 'Database connection error occurred'}`);
     }
 
 }

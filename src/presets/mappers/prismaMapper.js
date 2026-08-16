@@ -98,14 +98,14 @@ const prismaCodeToHttpHandler = {
 const prismaCodes = {
   P2000: { dev: "The provided value for the column is too long for the column's type", prod: 'Invalid input value', status: HttpStatus.BAD_REQUEST },
   P2001: { dev: 'Record does not exist', prod: 'Resource not found', status: HttpStatus.NOT_FOUND },
-  P2002: { dev: 'Unique constraint failed', prod: 'Conflict', status: HttpStatus.CONFLICT },
+  P2002: { dev: 'Unique constraint failed', prod: 'Resource already exists', status: HttpStatus.CONFLICT },
   P2003: { dev: 'Foreign key constraint failed', prod: 'Invalid reference', status: HttpStatus.BAD_REQUEST },
   
   //nwa
-  P2005: { dev: "The value stored in the database for the field is invalid for the field's type", prod: 'Invalid data provided', status: HttpStatus.BAD_REQUEST },
+  P2005: { dev: "The value stored in the database for the field is invalid for the field's type", prod: 'Invalid data', status: HttpStatus.BAD_REQUEST },
   P2006: { dev: "The provided value for the field is not valid", prod: 'Invalid input value', status: HttpStatus.BAD_REQUEST },
   P2007: { dev: "Data validation error", prod: 'Invalid request data', status: HttpStatus.BAD_REQUEST },
-  P2011: { dev: "Null constraint violation", prod: 'Required data is missing', status: HttpStatus.BAD_REQUEST },
+  P2011: { dev: "Null constraint violation", prod: 'Required value is missing', status: HttpStatus.BAD_REQUEST },
   P2027: { dev: "Multiple errors occurred on the database during query execution", prod: 'Internal server error', status: HttpStatus.INTERNAL_SERVER_ERROR },
   
   
