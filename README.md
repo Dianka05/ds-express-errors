@@ -249,7 +249,8 @@ Use `setConfig` before initializing the error handler middleware.
 > `ConfigAlreadySet` is an internal ds-express-errors error with the code `ERR_DS_EXPRESS_ERRORS_CONFIG_ALREADY_SET`.
 
 > [!IMPORTANT]
-> `customMappers` must be synchronous. Async function or Promise are not supported and will be ignored.
+> `customMappers` must be synchronous. Passing an `async` function throws `ConfigInvalid` from `setConfig`, and the `ErrorMapper` TypeScript type does not allow returning a `Promise`.
+> More at [Library Errors](https://ds-express-errors.dev/docs/library-errors)
 
 ```javascript
 const { setConfig, errorHandler } = require('ds-express-errors');
