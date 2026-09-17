@@ -1,17 +1,15 @@
 const { getConfig } = require("../../config/config")
-const { checkIsDev, checkIsDebug } = require("../../config/config")
+const { checkIsDebug } = require("../../config/config")
 const { logDebug } = require("../../logger/logger")
 const { safeStringify } = require("../../utils/safeStringify")
 const { GatewayTimeout } = require("../presets")
 const { BadRequest, Conflict, NotFound, InternalServerError, ServiceUnavailable } = require("../presets")
 
-const sequelizeMapper = (err, req) => {
+const sequelizeMapper = (err, req, isDevEnvironment) => {
     const sequelizeClass = getConfig()?.errorClasses?.Sequelize;
     if (sequelizeClass) {
-        return sendResponseForMappedError(sequelizeClass, err, req)
+        return sendResponseForMappedError(sequelizeClass, err, req, isDevEnvironment)
     }
-    const isDevEnvironment = checkIsDev()
-
     // If config errorClasses NOT defined
     const { name, message } = err
 
@@ -100,9 +98,7 @@ const sequelizeMapper = (err, req) => {
 
 
 // If config errorClasses defined
-const sendResponseForMappedError = (sequelize, err, req) => {
-    const isDevEnvironment = checkIsDev()
-
+const sendResponseForMappedError = (sequelize, err, req, isDevEnvironment) => {
     const { message } = err
 
     // 409

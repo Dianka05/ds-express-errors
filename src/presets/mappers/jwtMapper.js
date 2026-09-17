@@ -1,8 +1,6 @@
-const { checkIsDev } = require("../../config/config")
 const { Unauthorized } = require('../presets');
 
-const jwtMapper = (err) => {
-    const isDevEnvironment = checkIsDev()
+const jwtMapper = (err, req, isDevEnvironment) => {
     const {name, message} = err
 
     if (name === 'JsonWebTokenError') {
