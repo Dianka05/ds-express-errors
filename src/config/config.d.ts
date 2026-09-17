@@ -59,7 +59,7 @@ export interface ErrorConfig {
     customMappers?: ErrorMapper[]
     errorClasses?: ErrorClasses
     devEnvironments?: string[]
-    needMappers?: 'zod' | 'joi' | 'expressValidator' | 'mongoose' | 'prisma' | 'sequelize' 
+    needMappers?: 'zod' | 'joi' | 'expressValidator' | 'mongoose' | 'prisma' | 'sequelize' | 'jwt'
     maxLoggerRequests?: number
     formatError?: (err: AppError | Error, options: ConfigOptions) => any
 }
