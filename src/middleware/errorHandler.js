@@ -7,22 +7,22 @@ const isAsync = require('../utils/isAsync')
 
 
 function errorHandler(err, req, res, next) {
+    const isDevEnvironment = checkIsDev()
 
     if (res.headerSent) {
         return next(err)
     }
 
     if (err instanceof AppError) {
-        defaultErrorAnswer(err, req, res)
+        defaultErrorAnswer(err, req, res, isDevEnvironment)
     } else {
-        const genericError = mapErrorNameToPreset(err, req)
+        const genericError = mapErrorNameToPreset(err, req, isDevEnvironment)
         defaultErrorAnswer(genericError, req, res)
     }
 }
 
-function defaultErrorAnswer(err, req, res) {
+function defaultErrorAnswer(err, req, res, isDev) {
     logError(err, req)
-    const isDev = checkIsDev()
     const options = {req, isDev}
     const resBody = config.formatError(err, options)
     const status = err.statusCode || 500

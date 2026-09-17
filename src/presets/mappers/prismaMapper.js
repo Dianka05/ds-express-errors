@@ -1,17 +1,15 @@
-const { checkIsDev, getConfig } = require("../../config/config");
+const { getConfig } = require("../../config/config");
 const { checkIsDebug } = require("../../config/config");
 const HttpStatus = require("../../constants/httpStatus");
 const { logDebug } = require("../../logger/logger");
 const { BadRequest, Conflict, NotFound, ServiceUnavailable, InternalServerError } = require("../presets");
 
-const prismaMapper = (err, req) => {
-    const isDevEnvironment = checkIsDev()
-
+const prismaMapper = (err, req, isDevEnvironment) => {
     //
     const prismaClass = getConfig()?.errorClasses?.Prisma;
 
     if (prismaClass) {
-      return sendResponseForMappedError(prismaClass, err, req)
+      return sendResponseForMappedError(prismaClass, err, req, isDevEnvironment)
     }
 
     // If config errorClasses NOT defined
@@ -60,8 +58,7 @@ const prismaMapper = (err, req) => {
 }
 
 // If config errorClasses defined
-const sendResponseForMappedError = (prisma, err, req) => {
-    const isDevEnvironment = checkIsDev()
+const sendResponseForMappedError = (prisma, err, req, isDevEnvironment) => {
     const { message } = err
     let formattedDetail;
 

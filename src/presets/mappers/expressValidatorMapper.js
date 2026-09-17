@@ -1,9 +1,6 @@
-const { checkIsDev } = require("../../config/config")
 const { UnprocessableContent, BadRequest } = require("../presets")
 
-const expressValidatorMapper = (err) => {
-    const isDevEnvironment = checkIsDev()
-
+const expressValidatorMapper = (err, req, isDevEnvironment) => {
     const isExpressValidatorError = (err) =>
        err?.errors && Array.isArray(err.errors)
 
