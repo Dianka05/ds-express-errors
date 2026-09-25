@@ -54,12 +54,14 @@ export interface ErrorMapper {
     (err: AppError | Error, req: Request): AppError | Error | undefined | null;
 }
 
+type NeedMappers = 'zod' | 'joi' | 'expressValidator' | 'mongoose' | 'prisma' | 'sequelize' | 'jwt'
+
 export interface ErrorConfig {
     customLogger?: Logger | null
     customMappers?: ErrorMapper[]
     errorClasses?: ErrorClasses
     devEnvironments?: string[]
-    needMappers?: 'zod' | 'joi' | 'expressValidator' | 'mongoose' | 'prisma' | 'sequelize' | 'jwt'
+    needMappers?: NeedMappers[]
     maxLoggerRequests?: number
     formatError?: (err: AppError | Error, options: ConfigOptions) => any
 }
