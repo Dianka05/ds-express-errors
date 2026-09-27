@@ -1,5 +1,11 @@
-import { NextFunction, Request, Response } from 'express'
+import { RequestHandler } from 'express';
 
-export function asyncHandler(
-    fn: (req: Request, res: Response, next: NextFunction) => any
-): (req: Request, res: Response, next: NextFunction) => void
+export function asyncHandler<
+  P = any,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = any,
+  Locals extends Record<string, any> = Record<string, any>,
+>(
+  fn: RequestHandler<P, ResBody, ReqBody, ReqQuery, Locals>,
+): RequestHandler<P, ResBody, ReqBody, ReqQuery, Locals>;

@@ -1,9 +1,7 @@
-const { checkIsDev } = require("../../config/config")
 const { safeStringify } = require("../../utils/safeStringify")
 const { BadRequest, Conflict } = require("../presets")
 
-const mongooseMapper = (err) => {
-    const isDevEnvironment = checkIsDev()
+const mongooseMapper = (err, req, isDevEnvironment) => {
     const { name, code } = err
 
     if (code === 11000 || code === 11001) { //MONGOOSE

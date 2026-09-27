@@ -1,9 +1,7 @@
-const { checkIsDev } = require("../../config/config")
 const HttpStatus = require("../../constants/httpStatus")
 const { BadRequest } = require("../presets")
 
-const nameMapper = (err, req) => {
-    const isDevEnvironment = checkIsDev()
+const nameMapper = (err, req, isDevEnvironment) => {
     const { name, message } = err
 
     if (name === 'CastError' && !isDevEnvironment) {

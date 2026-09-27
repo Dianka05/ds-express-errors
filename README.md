@@ -10,6 +10,10 @@ It provides ready-to-use error classes (HTTP Presets), a centralized error handl
 
 ---
 
+> [!NOTE]
+> #### **README is a preview, not the final documentation**
+> A more detailed guide is available at [ds-express-errors](https://ds-express-errors.dev)
+
 ## ✨ Features
 
 - **Ready-to-use HTTP presets:** `BadRequest`, `NotFound`, `Unauthorized`, and others, corresponding to standard HTTP codes.  
@@ -491,3 +495,12 @@ let config = {
 }
 
 ```
+
+## Author
+
+Author: Diana Stoyka
+
+Package Name: ds-express-errors
+
+Licence: [MIT](https://github.com/Dianka05/ds-express-errors?tab=MIT-1-ov-file)
+

@@ -1,6 +1,5 @@
 const { config } = require("../config/config")
 const { checkIsDebug } = require("../config/config")
-const { checkIsDev } = require("../config/config")
 const { logWarning, logDebug } = require("../logger/logger")
 const { safeStringify } = require("../utils/safeStringify")
 const { customMapper } = require("./mappers/customMapper")
@@ -24,9 +23,7 @@ const allMappers = {
     jwt: jwtMapper
 };
 
-const mapErrorNameToPreset = (err, req) => {
-
-    const isDevEnvironment = checkIsDev()
+const mapErrorNameToPreset = (err, req, isDevEnvironment) => {
 
     if (!err || typeof err !== 'object') {
         logWarning(`Non-object error received in mapErrorNameToPreset: ${safeStringify(err)}`, req)
@@ -51,11 +48,11 @@ const mapErrorNameToPreset = (err, req) => {
     if (mapperFuncCustom) return mapperFuncCustom
 
     for (const mapper of mappers) {
-        const mapperFunc = mapper(err, req)
+        const mapperFunc = mapper(err, req, isDevEnvironment)
         if (mapperFunc) return mapperFunc
     }
 
-    const mapperFuncName = nameMapper(err, req)
+    const mapperFuncName = nameMapper(err, req, isDevEnvironment)
     if (mapperFuncName) return mapperFuncName
 
     const presetError = presetErrors[name]
