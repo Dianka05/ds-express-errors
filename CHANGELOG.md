@@ -3,7 +3,16 @@
 All notable changes to this project will be documented in this file.
 > Date format: **year-mm-dd**
 
-## [1.9.2] – 2026-08-16 (latest)
+## [1.9.3] – 2026-09-27 (latest)
+
+- Added missing `jwt` property for `needMappers`
+- Fixed needMappers being incorrectly typed as a single string union instead of an array
+- Updated asyncHandler to preserve Express generic request types
+- Readme updates
+
+---
+
+## [1.9.2] – 2026-08-16
 
 - Fixed excessive production response sanitization in `Zod` `Joi`, `express-validator`, `Mongoose`, `Prisma`, and `Sequelize` mappers
 - Added separate `JWT` mapper handling to prevent leaking sensitive JWT error details in production
